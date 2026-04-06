@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SoMe — What are you doing tonight?</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --ink: #0e0c0a;
+    --cream: #f5f0e8;
+    --blush: #e8b89a;
+    --terracotta: #c96a3a;
+    --sage: #8a9e82;
+    --muted: #7a7268;
+    --gold: #c9a84c;
+  }
+  html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--ink); color: var(--cream); overflow-x: hidden; }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.6;
+  }
+  .bg-mesh {
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 20%, rgba(201,106,58,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(138,158,130,0.10) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+  .container {
+    position: relative; z-index: 1; min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 48px 24px 80px;
+  }
+  .wordmark {
+    font-family: 'Cormorant Garamond', serif; font-weight: 300; font-style: italic;
+    font-size: clamp(2.4rem, 8vw, 4rem); letter-spacing: 0.04em; color: var(--cream);
+    margin-bottom: 6px; opacity: 0; animation: fadeUp 0.8s ease forwards 0.1s;
+  }
+  .tagline {
+    font-size: 0.75rem; font-weight: 300; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 52px; opacity: 0; animation: fadeUp 0.8s ease forwards 0.25s;
+  }
+  .step { width: 100%; max-width: 440px; opacity: 0; animation: fadeUp 0.8s ease forwards 0.4s; }
+  .step + .step { margin-top: 32px; }
+  .step-label { font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--blush); margin-bottom: 12px; }
+  .step-label span { color: var(--muted); margin-left: 6px; font-size: 0.58rem; }
+  .step-question { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.2rem, 4vw, 1.6rem); font-weight: 300; line-height: 1.3; margin-bottom: 16px; color: var(--cream); }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .tiles.five .tile:last-child { grid-column: 1 / -1; }
+  .tiles.three { grid-template-columns: 1fr 1fr 1fr; }
+  .tile {
+    border: 1px solid rgba(245,240,232,0.12); border-radius: 12px; padding: 13px 11px;
+    cursor: pointer; transition: all 0.2s ease; background: rgba(245,240,232,0.03);
+    text-align: left; position: relative; overflow: hidden;
+  }
+  .tile::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(201,106,58,0.15), transparent);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .tile:hover { border-color: rgba(232,184,154,0.4); transform: translateY(-1px); }
+  .tile:hover::before { opacity: 1; }
+  .tile.selected { border-color: var(--blush); background: rgba(232,184,154,0.08); }
+  .tile.selected::before { opacity: 1; }
+  .tile-emoji { font-size: 1.2rem; margin-bottom: 4px; display: block; }
+  .tile-name { font-size: 0.81rem; font-weight: 500; color: var(--cream); display: block; }
+  .tile-sub { font-size: 0.66rem; color: var(--muted); margin-top: 2px; display: block; line-height: 1.4; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 7px; }
+  .tag {
+    border: 1px solid rgba(245,240,232,0.14); border-radius: 20px; padding: 6px 13px;
+    font-size: 0.7rem; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s;
+    background: transparent; color: rgba(245,240,232,0.55);
+  }
+  .tag:hover { border-color: rgba(232,184,154,0.4); color: var(--cream); }
+  .tag.selected { border-color: var(--blush); color: var(--blush); background: rgba(232,184,154,0.08); }
+  .divider {
+    width: 100%; max-width: 440px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(245,240,232,0.1), transparent);
+    margin: 2px 0; opacity: 0; animation: fadeUp 0.8s ease forwards 0.55s;
+  }
+  .btn-generate {
+    width: 100%; max-width: 440px; margin-top: 28px; padding: 17px 24px;
+    background: var(--terracotta); color: var(--cream); border: none; border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+    transition: all 0.25s ease; opacity: 0; animation: fadeUp 0.8s ease forwards 0.7s;
+  }
+  .btn-generate:hover { background: #d97a4a; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,106,58,0.3); }
+  .btn-generate:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ── RESULT CARD ── */
+  .result-card { display: none; width: 100%; max-width: 440px; border: 1px solid rgba(245,240,232,0.12); border-radius: 16px; overflow: hidden; background: rgba(245,240,232,0.03); }
+  .result-card.visible { display: block; animation: fadeUp 0.6s ease forwards; }
+  .result-header { padding: 20px 20px 14px; border-bottom: 1px solid rgba(245,240,232,0.08); }
+  .result-badge { display: inline-block; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--blush); border: 1px solid rgba(232,184,154,0.3); padding: 4px 10px; border-radius: 20px; margin-bottom: 8px; }
+  .result-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300; color: var(--cream); line-height: 1.3; margin-bottom: 8px; }
+
+  /* walkability badge */
+  .walk-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 20px; border: 1px solid;
+  }
+  .walk-badge.walkable { color: var(--sage); border-color: rgba(138,158,130,0.35); background: rgba(138,158,130,0.08); }
+  .walk-badge.drive { color: var(--gold); border-color: rgba(201,168,76,0.35); background: rgba(201,168,76,0.08); }
+
+  /* stops */
+  .result-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .stop-card { border: 1px solid rgba(245,240,232,0.08); border-radius: 10px; padding: 13px; }
+  .stop-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 3px; }
+  .stop-left { flex: 1; }
+  .stop-time { font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--blush); margin-bottom: 3px; }
+  .stop-name { font-size: 0.92rem; font-weight: 500; color: var(--cream); }
+  .stop-type-badge { font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 10px; border: 1px solid rgba(245,240,232,0.1); color: var(--muted); white-space: nowrap; margin-left: 8px; margin-top: 2px; }
+  .stop-note { font-size: 0.76rem; color: rgba(245,240,232,0.58); line-height: 1.55; margin: 7px 0 9px; }
+  .stop-meta { display: flex; align-items: center; justify-content: space-between; }
+  .stop-price { font-size: 0.68rem; letter-spacing: 0.08em; color: var(--sage); }
+  .stop-directions {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--blush); text-decoration: none;
+    border: 1px solid rgba(232,184,154,0.25); border-radius: 20px; padding: 4px 10px;
+    transition: all 0.2s;
+  }
+  .stop-directions:hover { background: rgba(232,184,154,0.1); border-color: var(--blush); }
+  .result-closing { padding: 4px 20px 16px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.95rem; color: rgba(245,240,232,0.45); line-height: 1.6; }
+
+  /* ── MOMENT 1: CONFIRM ── */
+  .moment-confirm {
+    margin: 0 16px 4px;
+    padding: 0 0 16px;
+    border-top: 1px solid rgba(245,240,232,0.08);
+    padding-top: 16px;
+    text-align: center;
+  }
+  .btn-lets-go {
+    width: 100%; padding: 16px; border: none; border-radius: 12px;
+    background: var(--terracotta); color: var(--cream);
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500;
+    letter-spacing: 0.06em; cursor: pointer; transition: all 0.2s;
+    margin-bottom: 10px;
+  }
+  .btn-lets-go:hover { background: #d97a4a; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,106,58,0.3); }
+  .btn-not-feeling {
+    width: 100%; padding: 11px; background: transparent;
+    border: 1px solid rgba(245,240,232,0.12); border-radius: 10px; color: var(--muted);
+    font-family: 'DM Sans', sans-serif; font-size: 0.76rem; letter-spacing: 0.08em;
+    text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-not-feeling:hover { color: var(--cream); border-color: rgba(245,240,232,0.2); }
+
+  /* ── MOMENT 2: BRIDGE ── */
+  .moment-bridge {
+    display: none;
+    margin: 0 16px 4px;
+    border: 1px solid rgba(232,184,154,0.2);
+    border-radius: 12px;
+    padding: 20px 16px;
+    background: rgba(232,184,154,0.04);
+    text-align: center;
+  }
+  .moment-bridge.visible { display: block; animation: fadeUp 0.5s ease forwards; }
+  .bridge-eyebrow { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--blush); margin-bottom: 10px; }
+  .bridge-headline { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 300; color: var(--cream); line-height: 1.4; margin-bottom: 8px; }
+  .bridge-sub { font-size: 0.76rem; color: rgba(245,240,232,0.55); line-height: 1.7; margin-bottom: 16px; }
+
+  /* perks row */
+  .perks-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .perk {
+    flex: 1; border: 1px solid rgba(245,240,232,0.08); border-radius: 10px;
+    padding: 10px 8px; text-align: center; background: rgba(245,240,232,0.02);
+  }
+  .perk-icon { font-size: 1.1rem; margin-bottom: 4px; display: block; }
+  .perk-label { font-size: 0.62rem; color: rgba(245,240,232,0.5); line-height: 1.4; }
+
+  .btn-app {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; background: var(--terracotta); color: var(--cream);
+    border: none; border-radius: 10px; padding: 14px 20px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.84rem; font-weight: 500;
+    letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+    transition: all 0.2s; text-decoration: none; margin-bottom: 8px;
+  }
+  .btn-app:hover { background: #d97a4a; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,106,58,0.3); }
+  .bridge-note { font-size: 0.65rem; color: rgba(245,240,232,0.3); letter-spacing: 0.06em; }
+
+  /* ── MOMENT 3: SHARE ── */
+  .moment-share {
+    display: none;
+    margin: 0 16px 20px;
+    padding: 16px; border: 1px solid rgba(245,240,232,0.08);
+    border-radius: 10px; text-align: center;
+  }
+  .moment-share.visible { display: block; }
+  .share-label { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+
+  /* footer */
+  .result-footer { padding: 12px 16px 20px; display: flex; flex-direction: column; gap: 9px; border-top: 1px solid rgba(245,240,232,0.08); }
+  .btn-regen {
+    width: 100%; padding: 13px; background: transparent;
+    border: 1px solid rgba(245,240,232,0.18); border-radius: 10px; color: var(--cream);
+    font-family: 'DM Sans', sans-serif; font-size: 0.78rem; letter-spacing: 0.1em;
+    text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-regen:hover { border-color: var(--blush); background: rgba(232,184,154,0.06); }
+  .btn-back {
+    width: 100%; padding: 11px; background: transparent;
+    border: 1px solid rgba(245,240,232,0.1); border-radius: 10px; color: var(--muted);
+    font-family: 'DM Sans', sans-serif; font-size: 0.76rem; letter-spacing: 0.08em;
+    text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-back:hover { color: var(--cream); border-color: rgba(245,240,232,0.2); }
+
+  .footer-note { margin-top: 40px; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(122,114,104,0.4); text-align: center; opacity: 0; animation: fadeUp 0.8s ease forwards 0.9s; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="container">
+
+  <div class="wordmark">SoMe</div>
+  <div class="tagline">Your city. Your adventure.</div>
+
+  <!-- CITY BANNER — shown when URL has ?city= param -->
+  <div id="cityBanner" style="display:none;width:100%;max-width:440px;margin-bottom:24px;opacity:0;animation:fadeUp 0.8s ease forwards 0.2s;">
+    <div style="display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(232,184,154,0.3);border-radius:12px;padding:12px 16px;background:rgba(232,184,154,0.06);">
+      <div>
+        <div style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--blush);margin-bottom:3px;">Exploring in</div>
+        <div id="cityBannerName" style="font-size:0.95rem;font-weight:500;color:var(--cream);"></div>
+      </div>
+      <button onclick="changeCity()" style="background:transparent;border:1px solid rgba(245,240,232,0.2);border-radius:8px;padding:6px 12px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;">Change</button>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step" id="step1">
+    <div class="step-label">Step 01</div>
+    <div class="step-question">What kind of night is this?</div>
+    <div class="tiles five">
+      <div class="tile" data-value="Solo Date" onclick="selectTile(this,'dateType')">
+        <span class="tile-emoji">🌙</span><span class="tile-name">Solo Date</span>
+        <span class="tile-sub">Just me & the city</span>
+      </div>
+      <div class="tile" data-value="Someone New" onclick="selectTile(this,'dateType')">
+        <span class="tile-emoji">✨</span><span class="tile-name">Someone New</span>
+        <span class="tile-sub">Low pressure, open mind</span>
+      </div>
+      <div class="tile" data-value="Find a Friend" onclick="selectTile(this,'dateType')">
+        <span class="tile-emoji">🫂</span><span class="tile-name">Find a Friend</span>
+        <span class="tile-sub">Just want to get out & explore</span>
+      </div>
+      <div class="tile" data-value="Group Date" onclick="selectTile(this,'dateType')">
+        <span class="tile-emoji">🥂</span><span class="tile-name">Group Date</span>
+        <span class="tile-sub">The whole crew</span>
+      </div>
+      <div class="tile" data-value="Date Night" onclick="selectTile(this,'dateType')">
+        <span class="tile-emoji">🌹</span><span class="tile-name">Date Night</span>
+        <span class="tile-sub">My person, something special</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP 2 -->
+  <div class="step" id="step2" style="animation-delay:0.45s">
+    <div class="step-label">Step 02</div>
+    <div class="step-question">Where in LA are you?</div>
+    <div class="tiles three">
+      <div class="tile" data-value="Silver Lake" onclick="selectTile(this,'neighborhood')"><span class="tile-emoji">🌿</span><span class="tile-name">Silver Lake</span></div>
+      <div class="tile" data-value="Culver City" onclick="selectTile(this,'neighborhood')"><span class="tile-emoji">🎬</span><span class="tile-name">Culver City</span></div>
+      <div class="tile" data-value="Pasadena" onclick="selectTile(this,'neighborhood')"><span class="tile-emoji">🌸</span><span class="tile-name">Pasadena</span></div>
+    </div>
+  </div>
+
+  <div class="divider" style="animation-delay:0.55s"></div>
+
+  <!-- STEP 3 -->
+  <div class="step" id="step3" style="animation-delay:0.55s">
+    <div class="step-label">Optional <span>— what are you into?</span></div>
+    <div class="step-question" style="font-size:1.1rem;margin-bottom:14px;">Pick what feels like you</div>
+    <div class="tag-row">
+      <div class="tag" onclick="toggleTag(this,'interest')" data-value="art">🎨 Art & Culture</div>
+      <div class="tag" onclick="toggleTag(this,'interest')" data-value="food">🍜 Food & Drinks</div>
+      <div class="tag" onclick="toggleTag(this,'interest')" data-value="outdoors">🌿 Outdoors & Active</div>
+      <div class="tag" onclick="toggleTag(this,'interest')" data-value="music">🎶 Music & Nightlife</div>
+      <div class="tag" onclick="toggleTag(this,'interest')" data-value="creative">🪴 Hands-On & Creative</div>
+    </div>
+  </div>
+
+  <div class="divider" style="animation-delay:0.65s"></div>
+
+  <!-- STEP 4 -->
+  <div class="step" id="step4" style="animation-delay:0.65s">
+    <div class="step-label">Optional <span>— any particular vibe?</span></div>
+    <div class="tag-row">
+      <div class="tag" onclick="toggleTag(this,'vibe')" data-value="lowkey">Spontaneous</div>
+      <div class="tag" onclick="toggleTag(this,'vibe')" data-value="popups">Open to pop-ups</div>
+      <div class="tag" onclick="toggleTag(this,'vibe')" data-value="special">Special occasion</div>
+      <div class="tag" onclick="toggleTag(this,'vibe')" data-value="outdoors">Outdoors</div>
+      <div class="tag" onclick="toggleTag(this,'vibe')" data-value="food">Food-forward</div>
+      <div class="tag" onclick="toggleTag(this,'vibe')" data-value="artsy">Artsy</div>
+    </div>
+  </div>
+
+  <button class="btn-generate" id="generateBtn" onclick="generate()" disabled>Find My Adventure →</button>
+
+  <!-- RESULT CARD -->
+  <div class="result-card" id="resultCard">
+
+    <!-- Header -->
+    <div class="result-header">
+      <div class="result-badge" id="resultBadge"></div>
+      <div class="result-title" id="resultTitle"></div>
+      <div id="walkBadge"></div>
+    </div>
+
+    <!-- Stops -->
+    <div class="result-body" id="resultBody"></div>
+    <div class="result-closing" id="resultClosing"></div>
+
+    <!-- ── MOMENT 1: CONFIRM ── -->
+    <div class="moment-confirm" id="momentConfirm">
+      <button class="btn-lets-go" onclick="showBridge()">I'm in. Let's go! →</button>
+      <button class="btn-not-feeling" onclick="generate()">Not feeling it — show me something different</button>
+    </div>
+
+    <!-- ── MOMENT 2: BRIDGE ── -->
+    <div class="moment-bridge" id="momentBridge">
+      <div class="bridge-eyebrow">Take it further with SoMe</div>
+      <div class="bridge-headline" id="bridgeHeadline"></div>
+      <div class="bridge-sub" id="bridgeSub"></div>
+      <div class="perks-row">
+        <div class="perk">
+          <span class="perk-icon">🗺️</span>
+          <span class="perk-label">City as a live map</span>
+        </div>
+        <div class="perk">
+          <span class="perk-icon">🎟️</span>
+          <span class="perk-label">Exclusive venue perks & QR access</span>
+        </div>
+        <div class="perk">
+          <span class="perk-icon">✨</span>
+          <span class="perk-label">AI date planner built in</span>
+        </div>
+      </div>
+      <a class="btn-app" href="https://apps.apple.com/us/app/some-match-plan-meet/id6740887603" target="_blank">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:0.85"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        <span id="bridgeCTA">Download SoMe — Free</span>
+      </a>
+      <div class="bridge-note">Free on the App Store · iOS</div>
+    </div>
+
+    <!-- ── MOMENT 3: SHARE ── -->
+    <div class="moment-share" id="momentShare">
+      <div class="share-label">Share this adventure</div>
+      <canvas id="shareQR" style="border-radius:8px;"></canvas>
+      <div style="font-size:0.65rem;color:var(--muted);margin-top:8px;letter-spacing:0.06em;">socialwithsome.github.io/explore</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="result-footer">
+      <button class="btn-regen" onclick="generate()">↻ Show Me Something Different</button>
+      <button class="btn-back" onclick="resetFlow()">← Change My Selections</button>
+    </div>
+  </div>
+
+  <div class="footer-note">@socialwithsome</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script>
+const state = { dateType: null, neighborhood: null, interests: [], vibes: [] };
+
+// ── BRIDGE COPY — inclusive, no pressure ──
+const bridge = {
+  "Solo Date": {
+    headline: "The city has more to offer. So do you.",
+    sub: "SoMe turns your solo adventures into a live map of the city's best spots — and when you're ready, connects you with people who are down for the same kind of day. No pressure. Just good plans.",
+    cta: "Explore SoMe — Free"
+  },
+  "Someone New": {
+    headline: "Who's coming with you?",
+    sub: "SoMe matches you with someone who actually wants to do this — based on shared interests, not just photos. Flash your QR code at the door and the venue already knows you're coming.",
+    cta: "Find someone new — Free"
+  },
+  "Find a Friend": {
+    headline: "Your city is full of people like you.",
+    sub: "SoMe isn't just for dating. It connects people who want to get out and explore — solo, coupled, or anywhere in between. Meet someone new, expand your circle, show up for your city.",
+    cta: "Find your people — Free"
+  },
+  "Group Date": {
+    headline: "Make this a regular thing.",
+    sub: "SoMe helps groups discover something new every week — with exclusive venue perks and a QR code that gets you in the door. Great nights shouldn't be a one-time thing.",
+    cta: "Bring the crew — Free"
+  },
+  "Date Night": {
+    headline: "Keep the spark going.",
+    sub: "SoMe saves your favorite itineraries, unlocks exclusive venue perks, and gets smarter every date. Whether it's your first or your hundredth — the night should always feel like this.",
+    cta: "Save your date — Free"
+  }
+};
+
+// ── VENUES ──
+const venues = {
+  "Silver Lake": [
+    { name: "Reunion & Company",          type: "café",       price: "$$",  note: "Start slow with an all-day café that feels like a neighborhood hug.",                      maps: "https://maps.google.com/?q=Reunion+and+Company+Los+Angeles",     zone:"sunset", tags: ["food"] },
+    { name: "Ohana Superette",             type: "café",       price: "$",   note: "Hawaiian-inspired and feel-good — grab something fresh before the day unfolds.",           maps: "https://maps.google.com/?q=Ohana+Superette+Los+Angeles",          zone:"sunset", tags: ["food"] },
+    { name: "Donna's",                     type: "restaurant", price: "$$",  note: "Natural wine, great pasta, and a room that makes every conversation feel easy.",           maps: "https://maps.google.com/?q=Donnas+Los+Angeles",                   zone:"sunset", tags: ["food"] },
+    { name: "Pine & Crane",                type: "restaurant", price: "$$",  note: "Taiwanese home cooking done right — order the dan dan noodles.",                           maps: "https://maps.google.com/?q=Pine+and+Crane+Silver+Lake",           zone:"hyperion", tags: ["food"] },
+    { name: "Bar Seco",                    type: "bar",        price: "$$",  note: "Natural wine and amaro in a room that rewards lingering.",                                 maps: "https://maps.google.com/?q=Bar+Seco+Los+Angeles",                 zone:"sunset", tags: ["food","music"] },
+    { name: "4100 Bar",                    type: "bar",        price: "$",   note: "Unpretentious and late-night perfect — the kind of place where good conversations happen.", maps: "https://maps.google.com/?q=4100+Bar+Los+Angeles",                 zone:"sunset", tags: ["music"] },
+    { name: "Silver Lake Meadows",         type: "outdoor",    price: "$",   note: "Walk the reservoir path as the neighborhood comes alive around you.",                      maps: "https://maps.google.com/?q=Silver+Lake+Meadows",                  zone:"reservoir", tags: ["outdoors"] },
+    { name: "Sunset Junction",             type: "outdoor",    price: "$",   note: "Wander the strip, window shop, and feel the pulse of Silver Lake.",                       maps: "https://maps.google.com/?q=Sunset+Junction+Silver+Lake",          zone:"sunset", tags: ["outdoors","art"] },
+    { name: "Photomatica",                 type: "activity",   price: "$",   note: "Step into the vintage photo booth — a Silver Lake rite of passage.",                      maps: "https://maps.google.com/?q=Photomatica+Los+Angeles",              zone:"sunset", tags: ["creative","art"] },
+    { name: "The Echo",                    type: "activity",   price: "$$",  note: "Catch live music at one of LA's most beloved neighborhood venues.",                        maps: "https://maps.google.com/?q=The+Echo+Los+Angeles",                 zone:"sunset", tags: ["music"] },
+    { name: "Silver Lake Farmer's Market", type: "pop-up",     price: "$",   note: "Saturday morning energy — local produce, good people, great coffee.",                      maps: "https://maps.google.com/?q=Silver+Lake+Farmers+Market",           zone:"sunset", tags: ["food","outdoors"] },
+    { name: "Sunset Blvd Art Walk",        type: "pop-up",     price: "$",   note: "Galleries open their doors on select evenings — art and conversation flow freely.",        maps: "https://maps.google.com/?q=Sunset+Blvd+Silver+Lake",              zone:"sunset", tags: ["art"] },
+    { name: "Millie's Cafe",               type: "dessert",    price: "$",   note: "Classic diner with beloved pies and a cozy, nostalgic feel.",                              maps: "https://maps.google.com/?q=Millies+Cafe+Silver+Lake",             zone:"sunset", tags: ["food","dessert"] },
+    { name: "Salt & Straw",                type: "dessert",    price: "$$",  note: "Inventive seasonal ice cream with lines that are always worth it.",                        maps: "https://maps.google.com/?q=Salt+and+Straw+Los+Angeles",           zone:"sunset", tags: ["food","dessert"] },
+  ],
+  "Culver City": [
+    { name: "Yunomi Handroll",             type: "restaurant", price: "$$",  note: "Order at the counter, grab a seat, and enjoy the best handrolls in the neighborhood.",    maps: "https://maps.google.com/?q=Yunomi+Handroll+Culver+City",          zone:"culver", tags: ["food"] },
+    { name: "Roberta's",                   type: "restaurant", price: "$$",  note: "Wood-fired pizza and a lively room — great energy for any kind of date.",                 maps: "https://maps.google.com/?q=Robertas+Culver+City",                 zone:"washington", tags: ["food"] },
+    { name: "Destroyer",                   type: "café",       price: "$$",  note: "Stark, minimal, extraordinary — a breakfast worth building a morning around.",             maps: "https://maps.google.com/?q=Destroyer+Culver+City",                zone:"hayden", tags: ["food","art"] },
+    { name: "The Culver Hotel Bar",        type: "bar",        price: "$$$", note: "Old Hollywood elegance in a historic hotel — order a classic cocktail and settle in.",    maps: "https://maps.google.com/?q=Culver+Hotel+Bar",                     zone:"culver", tags: ["food","music"] },
+    { name: "Baldwin Hills Scenic Overlook", type: "outdoor",  price: "$",   note: "Climb the stairs and earn one of the best views in all of LA.",                           maps: "https://maps.google.com/?q=Baldwin+Hills+Scenic+Overlook",        zone:"baldwin", tags: ["outdoors"] },
+    { name: "Wende Museum",                type: "activity",   price: "$$",  note: "Cold War history told through art and artifacts — unexpectedly moving.",                   maps: "https://maps.google.com/?q=Wende+Museum+Culver+City",             zone:"culver", tags: ["art"] },
+    { name: "Bitter Root Pottery",         type: "activity",   price: "$$",  note: "Get your hands in clay together — a surprisingly intimate and fun shared experience.",     maps: "https://maps.google.com/?q=Bitter+Root+Pottery+Culver+City",      zone:"hayden", tags: ["creative"] },
+    { name: "Activate",                    type: "activity",   price: "$$",  note: "High-energy interactive gaming that works for any group size.",                            maps: "https://maps.google.com/?q=Activate+Culver+City",                 zone:"sepulveda", tags: ["creative"] },
+    { name: "Culver City Art District First Fridays", type: "pop-up", price: "$", note: "Galleries open late on the first Friday of each month — free and fantastic.",        maps: "https://maps.google.com/?q=Culver+City+Art+District",             zone:"washington", tags: ["art"] },
+    { name: "Platform Farmers Market",     type: "pop-up",     price: "$",   note: "Weekly market in the Platform courtyard — fresh, local, and easy.",                        maps: "https://maps.google.com/?q=Platform+LA+Culver+City",              zone:"washington", tags: ["food","outdoors"] },
+    { name: "Honeymee",                    type: "dessert",    price: "$",   note: "Soft-serve honey milk ice cream — simple, pure, and quietly perfect.",                     maps: "https://maps.google.com/?q=Honeymee+Culver+City",                 zone:"culver", tags: ["food","dessert"] },
+    { name: "Pressed Juicery Freeze",      type: "dessert",    price: "$",   note: "Creamy soft-serve made from fruits and veggies — guilt-free and genuinely delicious.",    maps: "https://maps.google.com/?q=Pressed+Juicery+Freeze+Culver+City",  zone:"culver", tags: ["food","dessert"] },
+  ],
+  "Pasadena": [
+    { name: "Salted Butter Company",       type: "café",       price: "$",   note: "A cozy bakery morning — slow down, order something buttery, and ease into the day.",      maps: "https://maps.google.com/?q=Salted+Butter+Company+Pasadena",       zone:"oldtown", tags: ["food"] },
+    { name: "Oh La La",                    type: "café",       price: "$$",  note: "French-inspired and charming — great for a first meeting with low pressure.",             maps: "https://maps.google.com/?q=Oh+La+La+Pasadena",                    zone:"colorado", tags: ["food"] },
+    { name: "Woon",                        type: "restaurant", price: "$$",  note: "Taiwanese comfort food in a warm, unpretentious room — everything tastes like care.",     maps: "https://maps.google.com/?q=Woon+Pasadena",                        zone:"washington", tags: ["food"] },
+    { name: "Cafe Santorini",              type: "restaurant", price: "$$$", note: "Rooftop Mediterranean dining in Old Town — especially beautiful after dark.",             maps: "https://maps.google.com/?q=Cafe+Santorini+Pasadena",              zone:"oldtown", tags: ["food"] },
+    { name: "1886 Bar at The Raymond",     type: "bar",        price: "$$$", note: "Craft cocktails in a stunning Craftsman setting — feel like you're in another era.",      maps: "https://maps.google.com/?q=1886+Bar+Pasadena",                    zone:"fairoaks", tags: ["food"] },
+    { name: "The Blind Donkey",            type: "bar",        price: "$$",  note: "Craft beer and whiskey in a low-key neighborhood spot with real character.",              maps: "https://maps.google.com/?q=The+Blind+Donkey+Pasadena",            zone:"oldtown", tags: ["food","music"] },
+    { name: "Rose Bowl Stadium",           type: "outdoor",    price: "$",   note: "Walk the grounds of an LA icon — especially beautiful in the early evening light.",       maps: "https://maps.google.com/?q=Rose+Bowl+Stadium+Pasadena",           zone:"rosebowl", tags: ["outdoors"] },
+    { name: "Descanso Gardens",            type: "outdoor",    price: "$$",  note: "Wander through oak woodland and seasonal blooms — quietly spectacular.",                  maps: "https://maps.google.com/?q=Descanso+Gardens",                     zone:"descanso", tags: ["outdoors","art"] },
+    { name: "Eaton Canyon",                type: "outdoor",    price: "$",   note: "A short hike to a waterfall that feels far more wild than it has any right to.",          maps: "https://maps.google.com/?q=Eaton+Canyon+Pasadena",                zone:"eaton", tags: ["outdoors"] },
+    { name: "Lumee DIY",                   type: "activity",   price: "$$",  note: "Make something together — a creative experience that leaves you with a souvenir.",         maps: "https://maps.google.com/?q=Lumee+DIY+Pasadena",                   zone:"delmar", tags: ["creative"] },
+    { name: "Norton Simon Museum",         type: "activity",   price: "$$",  note: "World-class art in a beautiful building — lose track of time together.",                  maps: "https://maps.google.com/?q=Norton+Simon+Museum",                  zone:"colorado", tags: ["art"] },
+    { name: "Vroman's Bookstore",          type: "activity",   price: "$",   note: "LA's oldest indie bookstore — browse, recommend, and discover each other's taste.",       maps: "https://maps.google.com/?q=Vromans+Bookstore+Pasadena",           zone:"colorado", tags: ["art","creative"] },
+    { name: "Rose Bowl Flea Market",       type: "pop-up",     price: "$",   note: "Second Sunday of each month — massive, iconic, and endlessly browsable.",                 maps: "https://maps.google.com/?q=Rose+Bowl+Flea+Market",                zone:"rosebowl", tags: ["outdoors","creative"] },
+    { name: "Pasadena Certified Farmers Market", type: "pop-up", price: "$", note: "Saturdays at Victory Park — excellent local produce and a great morning anchor.",        maps: "https://maps.google.com/?q=Pasadena+Farmers+Market+Victory+Park", zone:"victory", tags: ["food","outdoors"] },
+    { name: "Saffron & Rose",              type: "dessert",    price: "$$",  note: "Persian ice cream with rosewater and saffron — delicate and completely unforgettable.",   maps: "https://maps.google.com/?q=Saffron+and+Rose+Pasadena",            zone:"colorado", tags: ["food","dessert"] },
+    { name: "21 Choices",                  type: "dessert",    price: "$",   note: "Old Town Pasadena frozen yogurt institution — customizable and always satisfying.",       maps: "https://maps.google.com/?q=21+Choices+Pasadena",                  zone:"oldtown", tags: ["food","dessert"] },
+    { name: "Bulgarini Gelato",            type: "dessert",    price: "$$",  note: "Authentic Italian gelato made with local ingredients — the best scoop in Pasadena.",     maps: "https://maps.google.com/?q=Bulgarini+Gelato+Pasadena",            zone:"colorado", tags: ["food","dessert"] },
+  ]
+};
+
+// Zones that are walkable within themselves
+const walkableZones = {
+  "Silver Lake": ["sunset","hyperion"],
+  "Culver City": ["culver","washington","hayden"],
+  "Pasadena": ["oldtown","colorado","delmar"]
+};
+
+const arcs = {
+  "Solo Date":    [["café","outdoor"],        ["activity","outdoor"], ["bar","restaurant","dessert"]],
+  "Someone New":  [["café","outdoor"],        ["activity","pop-up"],  ["bar","restaurant"]],
+  "Find a Friend":[["café","restaurant"],     ["activity","pop-up"],  ["bar","outdoor"]],
+  "Group Date":   [["restaurant","café"],     ["activity"],           ["bar","pop-up"]],
+  "Date Night":   [["outdoor","café"],        ["restaurant","activity"],["bar","dessert"]],
+};
+
+const titles = {
+  "Solo Date":    { "Silver Lake":["A Day Just for You in Silver Lake","Your Afternoon, Unscheduled","Silver Lake on Your Own Terms"], "Culver City":["A Solo Culver City Afternoon","Your Own Kind of Day","Time Well Spent in Culver City"], "Pasadena":["Pasadena, At Your Own Pace","A Solo Day in Old Town","Quiet Hours in Pasadena"] },
+  "Someone New":  { "Silver Lake":["Something Easy in Silver Lake","A Silver Lake First","Low Pressure, High Vibe"], "Culver City":["Your Culver City First Meeting","Easy Does It in Culver","A Good Start in Culver City"], "Pasadena":["A Pasadena First Impression","Something Charming in Old Town","New Connection, Great City"] },
+  "Find a Friend":{ "Silver Lake":["Catching Up in Silver Lake","A Silver Lake Kind of Day","Good Company in the Lake"], "Culver City":["Culver City with Someone New","A Culver Hangout","Friends & Culver City"], "Pasadena":["Pasadena with Good People","A Pasadena Hangout","Catching Up in Old Town"] },
+  "Group Date":   { "Silver Lake":["The Whole Crew in Silver Lake","Silver Lake Group Mode","Everyone's Welcome Here"], "Culver City":["Culver City for the Group","Group Energy in Culver","A Culver City Night Out"], "Pasadena":["Pasadena with the Squad","The Group Does Pasadena","Old Town, Whole Crew"] },
+  "Date Night":   { "Silver Lake":["A Silver Lake Evening","Something Special in Silver Lake","The Night is Yours"], "Culver City":["A Culver City Date Night","An Evening in Culver","Something Worth Dressing Up For"], "Pasadena":["A Pasadena Date Night","Romance in Old Town","An Evening Worth Remembering"] },
+};
+
+const closings = {
+  "Solo Date":    ["The city was yours today.","You needed this.","Some days are just for you.","Time well spent with your favorite person — yourself."],
+  "Someone New":  ["A good start.","Something worth continuing.","The first of many, maybe.","Easy enough to feel like it was always going to work."],
+  "Find a Friend":["This is what getting out actually looks like.","Good company makes any neighborhood better.","The kind of day you'll reference for months.","You needed this more than you knew."],
+  "Group Date":   ["The whole crew, in their element.","Every group has a best day — this one's a contender.","Good people, good neighborhood, good night.","This is what the group chat was made for."],
+  "Date Night":   ["A night worth remembering.","This is what the city is for.","Some evenings just land right.","The kind of night you'll talk about later."],
+};
+
+const startTimes = {
+  "Solo Date":["10:00 AM","11:00 AM","2:00 PM"], "Someone New":["2:00 PM","4:00 PM","6:00 PM"],
+  "Find a Friend":["11:00 AM","1:00 PM","3:00 PM"], "Group Date":["5:00 PM","6:00 PM","7:00 PM"],
+  "Date Night":["5:00 PM","6:00 PM","7:00 PM"],
+};
+const gaps = { "café":60,"restaurant":90,"outdoor":75,"activity":90,"bar":75,"pop-up":60,"dessert":45 };
+const typeBg = { café:'rgba(201,168,76,0.08)', restaurant:'rgba(201,106,58,0.08)', bar:'rgba(100,80,140,0.12)', outdoor:'rgba(80,140,100,0.1)', activity:'rgba(138,158,130,0.1)', 'pop-up':'rgba(200,120,100,0.08)', dessert:'rgba(200,100,140,0.08)' };
+
+function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function addMinutes(timeStr, mins) {
+  const [time, period] = timeStr.split(' ');
+  const [h, m] = time.split(':').map(Number);
+  let total = h * 60 + m + (period === 'PM' && h !== 12 ? 720 : 0) + (period === 'AM' && h === 12 ? -720 : 0) + mins;
+  let nh = Math.floor(total / 60) % 24, nm = total % 60;
+  const np = nh >= 12 ? 'PM' : 'AM';
+  if (nh > 12) nh -= 12; if (nh === 0) nh = 12;
+  return `${nh}:${nm.toString().padStart(2,'0')} ${np}`;
+}
+
+function pickStop(pool, types, used, interests) {
+  for (const type of types) {
+    const f = pool.filter(v => v.type === type && !used.has(v.name) && (interests.length === 0 || interests.some(i => v.tags.includes(i))));
+    if (f.length) { const p = rand(f); used.add(p.name); return p; }
+  }
+  for (const type of types) {
+    const f = pool.filter(v => v.type === type && !used.has(v.name));
+    if (f.length) { const p = rand(f); used.add(p.name); return p; }
+  }
+  return null;
+}
+
+function isWalkable(stops, neighborhood) {
+  const zones = walkableZones[neighborhood] || [];
+  return stops.every(s => zones.includes(s.zone));
+}
+
+function generate() {
+  // reset bridge & share
+  document.getElementById('momentBridge').classList.remove('visible');
+  document.getElementById('momentShare').style.display = 'none';
+  document.getElementById('momentConfirm').style.display = 'block';
+
+  const pool = venues[state.neighborhood];
+  const arc = arcs[state.dateType];
+  const used = new Set();
+  const stops = arc.map(types => pickStop(pool, types, used, state.interests)).filter(Boolean);
+  if (stops.length < 2) return;
+
+  ['step1','step2','step3','step4'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+  document.getElementById('generateBtn').style.display = 'none';
+
+  // Badge + title
+  const badgeParts = [state.dateType, state.neighborhood];
+  if (state.interests.length) badgeParts.push(state.interests[0]);
+  document.getElementById('resultBadge').textContent = badgeParts.join(' · ');
+  document.getElementById('resultTitle').textContent = rand(titles[state.dateType][state.neighborhood]);
+
+  // Walkability badge
+  const walkEl = document.getElementById('walkBadge');
+  if (isWalkable(stops, state.neighborhood)) {
+    walkEl.innerHTML = `<span class="walk-badge walkable"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0M6 20l3-7 2 3 2-4 3 8M9 13l-2 2"/></svg> Walkable itinerary</span>`;
+  } else {
+    walkEl.innerHTML = `<span class="walk-badge drive"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v4h-7V8zM5.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM18.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg> Best by car or short drive</span>`;
+  }
+
+  // Stops
+  const body = document.getElementById('resultBody');
+  body.innerHTML = '';
+  let currentTime = rand(startTimes[state.dateType]);
+  stops.forEach((stop, i) => {
+    const time = i === 0 ? currentTime : currentTime;
+    currentTime = addMinutes(currentTime, gaps[stop.type] || 75);
+    const card = document.createElement('div');
+    card.className = 'stop-card';
+    card.style.background = typeBg[stop.type] || 'rgba(245,240,232,0.02)';
+    card.innerHTML = `
+      <div class="stop-top">
+        <div class="stop-left">
+          <div class="stop-time">${time}</div>
+          <div class="stop-name">${stop.name}</div>
+        </div>
+        <div class="stop-type-badge">${stop.type}</div>
+      </div>
+      <div class="stop-note">${stop.note}</div>
+      <div class="stop-meta">
+        <span class="stop-price">${stop.price}</span>
+        <a class="stop-directions" href="${stop.maps}" target="_blank">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          Directions
+        </a>
+      </div>`;
+    body.appendChild(card);
+  });
+
+  document.getElementById('resultClosing').textContent = rand(closings[state.dateType]);
+  document.getElementById('resultCard').classList.add('visible');
+}
+
+function showBridge() {
+  // hide confirm, show bridge + share
+  document.getElementById('momentConfirm').style.display = 'none';
+  const b = bridge[state.dateType];
+  document.getElementById('bridgeHeadline').textContent = b.headline;
+  document.getElementById('bridgeSub').textContent = b.sub;
+  document.getElementById('bridgeCTA').textContent = b.cta;
+  document.getElementById('momentBridge').classList.add('visible');
+
+  // show share
+  const shareEl = document.getElementById('momentShare');
+  shareEl.style.display = 'block';
+  setTimeout(() => {
+    if (typeof QRious !== 'undefined') {
+      new QRious({
+        element: document.getElementById('shareQR'),
+        value: 'https://socialwithsome.github.io/explore',
+        size: 130, foreground: '#0e0c0a', background: '#f5f0e8', padding: 6
+      });
+    }
+  }, 100);
+}
+
+function selectTile(el, key) {
+  el.parentElement.querySelectorAll('.tile').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+  state[key] = el.dataset.value;
+  checkReady();
+}
+
+function toggleTag(el, group) {
+  el.classList.toggle('selected');
+  const val = el.dataset.value;
+  const arr = group === 'interest' ? state.interests : state.vibes;
+  const idx = arr.indexOf(val);
+  if (idx > -1) arr.splice(idx, 1); else arr.push(val);
+}
+
+function checkReady() {
+  document.getElementById('generateBtn').disabled = !(state.dateType && state.neighborhood);
+}
+
+// ── URL PARAM: ?city=silverlake|culvercity|pasadena ──
+const cityMap = {
+  'silverlake':  'Silver Lake',
+  'culvercity':  'Culver City',
+  'pasadena':    'Pasadena',
+};
+
+const cityEmoji = {
+  'Silver Lake': '🌿',
+  'Culver City': '🎬',
+  'Pasadena':    '🌸',
+};
+
+function initCityParam() {
+  const params = new URLSearchParams(window.location.search);
+  const raw = (params.get('city') || '').toLowerCase().replace(/\s/g,'');
+  const city = cityMap[raw];
+  if (!city) return;
+
+  // Set state
+  state.neighborhood = city;
+
+  // Hide step 2 entirely
+  document.getElementById('step2').style.display = 'none';
+
+  // Show city banner
+  const banner = document.getElementById('cityBanner');
+  const bannerName = document.getElementById('cityBannerName');
+  bannerName.textContent = cityEmoji[city] + '  ' + city;
+  banner.style.display = 'block';
+
+  checkReady();
+}
+
+function changeCity() {
+  // Reset neighborhood, show step 2, hide banner
+  state.neighborhood = null;
+  document.getElementById('step2').style.display = '';
+  document.getElementById('cityBanner').style.display = 'none';
+  // Deselect any neighborhood tile
+  document.querySelectorAll('#step2 .tile').forEach(t => t.classList.remove('selected'));
+  checkReady();
+}
+
+// Run on load
+window.addEventListener('DOMContentLoaded', initCityParam);
+
+function resetFlow() {
+  document.getElementById('resultCard').classList.remove('visible');
+  document.getElementById('momentBridge').classList.remove('visible');
+  document.getElementById('momentShare').style.display = 'none';
+  document.getElementById('momentConfirm').style.display = 'block';
+  ['step1','step2','step3','step4'].forEach(id => { document.getElementById(id).style.display = ''; });
+  document.getElementById('generateBtn').style.display = '';
+  document.querySelectorAll('.tile').forEach(t => t.classList.remove('selected'));
+  document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
+  state.dateType = null; state.neighborhood = null; state.interests = []; state.vibes = [];
+  // Re-apply city param if present
+  initCityParam();
+  checkReady();
+}
+</script>
+</body>
+</html>
