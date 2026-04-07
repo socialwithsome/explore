@@ -84,12 +84,14 @@
   .btn-back:hover { color:var(--cream); border-color:rgba(245,240,232,.2); }
 
   /* social + feedback footer */
-  .site-footer { margin-top:36px; display:flex; flex-direction:column; align-items:center; gap:10px; opacity:0; animation:fadeUp .8s ease forwards .9s; }
-  .social-row { display:flex; gap:16px; align-items:center; }
-  .social-link { font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:rgba(122,114,104,.5); text-decoration:none; transition:color .2s; }
-  .social-link:hover { color:var(--muted); }
-  .feedback-link { font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:rgba(122,114,104,.3); text-decoration:none; border-bottom:1px solid rgba(122,114,104,.2); padding-bottom:1px; transition:all .2s; }
-  .feedback-link:hover { color:rgba(122,114,104,.5); }
+  .site-footer { margin-top:40px; display:flex; flex-direction:column; align-items:center; gap:14px; opacity:0; animation:fadeUp .8s ease forwards .9s; }
+  .social-row { display:flex; gap:12px; align-items:center; }
+  .social-link { display:flex; flex-direction:column; align-items:center; gap:6px; text-decoration:none; transition:opacity .2s; opacity:.5; }
+  .social-link:hover { opacity:.85; }
+  .social-link svg { width:24px; height:24px; }
+  .social-label { font-size:.58rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  .feedback-link { font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:rgba(122,114,104,.35); text-decoration:none; border-bottom:1px solid rgba(122,114,104,.2); padding-bottom:2px; transition:all .2s; }
+  .feedback-link:hover { color:rgba(122,114,104,.6); }
 
   /* toast */
   .toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(20px); background:rgba(245,240,232,.1); border:1px solid rgba(245,240,232,.2); backdrop-filter:blur(8px); color:var(--cream); font-size:.75rem; padding:10px 20px; border-radius:20px; opacity:0; transition:all .3s ease; pointer-events:none; z-index:999; white-space:nowrap; }
@@ -280,11 +282,33 @@
   <!-- SITE FOOTER -->
   <div class="site-footer">
     <div class="social-row">
-      <a class="social-link" href="https://www.instagram.com/socialwithsome" target="_blank">Instagram</a>
-      <span style="color:rgba(122,114,104,.3);font-size:.6rem;">·</span>
-      <a class="social-link" href="https://www.tiktok.com/@socialwithsome" target="_blank">TikTok</a>
-      <span style="color:rgba(122,114,104,.3);font-size:.6rem;">·</span>
-      <a class="social-link" href="https://apps.apple.com/us/app/some-match-plan-meet/id6740887603" target="_blank">App Store</a>
+
+      <!-- Instagram -->
+      <a class="social-link" href="https://www.instagram.com/socialwithsome" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--cream)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5"/>
+          <circle cx="12" cy="12" r="4"/>
+          <circle cx="17.5" cy="6.5" r=".5" fill="var(--cream)" stroke="none"/>
+        </svg>
+        <span class="social-label">Instagram</span>
+      </a>
+
+      <!-- TikTok -->
+      <a class="social-link" href="https://www.tiktok.com/@socialwithsome" target="_blank">
+        <svg viewBox="0 0 24 24" fill="var(--cream)" stroke="none">
+          <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.31 6.31 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/>
+        </svg>
+        <span class="social-label">TikTok</span>
+      </a>
+
+      <!-- App Store -->
+      <a class="social-link" href="https://apps.apple.com/us/app/some-match-plan-meet/id6740887603" target="_blank">
+        <svg viewBox="0 0 24 24" fill="var(--cream)" stroke="none">
+          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+        </svg>
+        <span class="social-label">App Store</span>
+      </a>
+
     </div>
     <a class="feedback-link" href="https://form.typeform.com/to/gVrsmWWQ" target="_blank">Share feedback</a>
   </div>
