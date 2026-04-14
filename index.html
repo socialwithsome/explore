@@ -1,844 +1,296 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SoMe — Explore LA</title>
-  <meta name="description" content="Curated date itineraries for Pasadena, Silver Lake, and Culver City. Plan less. Do more. Together." />
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
-
-  <style>
-    /* ─── TOKENS ─── */
-    :root {
-      --ink:       #1a1612;
-      --cream:     #f8f4ee;
-      --warm:      #f0e8d8;
-      --blush:     #e8c4a0;
-      --terracotta:#c45c2a;
-      --rust:      #9e3d1a;
-      --sage:      #6b7c5e;
-      --mist:      #c8d4c0;
-      --midnight:  #2a2035;
-
-      --serif:  'DM Serif Display', Georgia, serif;
-      --sans:   'DM Sans', system-ui, sans-serif;
-
-      --r-sm: 6px;
-      --r-md: 12px;
-      --r-lg: 20px;
-
-      --shadow-card: 0 2px 16px rgba(26,22,18,0.10), 0 1px 3px rgba(26,22,18,0.06);
-      --shadow-lift: 0 8px 32px rgba(26,22,18,0.14), 0 2px 8px rgba(26,22,18,0.08);
-    }
-
-    /* ─── RESET ─── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: var(--sans);
-      background: var(--cream);
-      color: var(--ink);
-      font-size: 15px;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-    }
-    a { color: inherit; text-decoration: none; }
-    button { cursor: pointer; border: none; background: none; font-family: inherit; }
-
-    /* ─── HEADER ─── */
-    .site-header {
-      background: var(--midnight);
-      color: white;
-      padding: 20px 24px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .site-logo {
-      font-family: var(--serif);
-      font-size: 22px;
-      letter-spacing: 0.02em;
-      color: white;
-    }
-    .site-logo span {
-      color: var(--blush);
-      font-style: italic;
-    }
-    .app-link {
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--blush);
-      border: 1px solid rgba(232,196,160,0.4);
-      padding: 6px 14px;
-      border-radius: 20px;
-      transition: all 0.2s;
-    }
-    .app-link:hover {
-      background: var(--blush);
-      color: var(--midnight);
-    }
-
-    /* ─── HERO ─── */
-    .hero {
-      background: var(--midnight);
-      color: white;
-      padding: 56px 24px 64px;
-      text-align: center;
-    }
-    .hero-eyebrow {
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--blush);
-      margin-bottom: 16px;
-    }
-    .hero h1 {
-      font-family: var(--serif);
-      font-size: clamp(34px, 6vw, 56px);
-      line-height: 1.1;
-      margin-bottom: 18px;
-    }
-    .hero h1 em {
-      color: var(--blush);
-      font-style: italic;
-    }
-    .hero-sub {
-      font-size: 15px;
-      font-weight: 300;
-      color: rgba(255,255,255,0.7);
-      max-width: 420px;
-      margin: 0 auto 32px;
-      line-height: 1.7;
-    }
-
-    /* ─── FILTER BAR ─── */
-    .filter-section {
-      background: var(--warm);
-      border-bottom: 1px solid var(--blush);
-      padding: 16px 24px;
-      position: sticky;
-      top: 61px;
-      z-index: 90;
-    }
-    .filter-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .filter-btn {
-      font-family: var(--sans);
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 7px 16px;
-      border-radius: 20px;
-      border: 1.5px solid rgba(26,22,18,0.18);
-      background: transparent;
-      color: var(--ink);
-      transition: all 0.18s;
-    }
-    .filter-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }
-    .filter-btn.active {
-      background: var(--terracotta);
-      border-color: var(--terracotta);
-      color: white;
-    }
-
-    /* ─── MAIN LAYOUT ─── */
-    .main {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 20px 80px;
-    }
-
-    /* ─── CITY SECTION ─── */
-    .city-section { margin-bottom: 64px; }
-    .city-section[hidden] { display: none; }
-    .city-heading {
-      font-family: var(--serif);
-      font-size: 28px;
-      margin-bottom: 6px;
-    }
-    .city-meta {
-      font-size: 12px;
-      font-weight: 300;
-      color: rgba(26,22,18,0.5);
-      letter-spacing: 0.04em;
-      margin-bottom: 28px;
-    }
-
-    /* ─── FORMAT TABS ─── */
-    .format-tabs {
-      display: flex;
-      gap: 0;
-      border: 1.5px solid rgba(26,22,18,0.15);
-      border-radius: var(--r-md);
-      overflow: hidden;
-      margin-bottom: 24px;
-      width: fit-content;
-    }
-    .format-tab {
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 9px 20px;
-      background: transparent;
-      color: rgba(26,22,18,0.5);
-      border-right: 1.5px solid rgba(26,22,18,0.15);
-      transition: all 0.15s;
-    }
-    .format-tab:last-child { border-right: none; }
-    .format-tab:hover { background: var(--warm); color: var(--ink); }
-    .format-tab.active {
-      background: var(--midnight);
-      color: white;
-    }
-
-    /* ─── ITINERARY PAIR ─── */
-    .itinerary-pair {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    @media (max-width: 640px) {
-      .itinerary-pair { grid-template-columns: 1fr; }
-    }
-
-    /* ─── ITINERARY CARD ─── */
-    .itinerary-card {
-      background: white;
-      border-radius: var(--r-lg);
-      overflow: hidden;
-      box-shadow: var(--shadow-card);
-      transition: box-shadow 0.2s, transform 0.2s;
-    }
-    .itinerary-card:hover {
-      box-shadow: var(--shadow-lift);
-      transform: translateY(-2px);
-    }
-    .card-header {
-      background: linear-gradient(135deg, var(--midnight) 0%, #3d2d50 100%);
-      padding: 20px 20px 16px;
-      color: white;
-    }
-    .card-option-badge {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--blush);
-      margin-bottom: 6px;
-    }
-    .card-title {
-      font-family: var(--serif);
-      font-size: 20px;
-      line-height: 1.2;
-      margin-bottom: 6px;
-    }
-    .card-tag {
-      font-size: 11px;
-      font-weight: 300;
-      color: rgba(255,255,255,0.6);
-      line-height: 1.5;
-    }
-
-    /* ─── STOPS LIST ─── */
-    .stops-list {
-      padding: 0;
-      list-style: none;
-    }
-    .stop-item {
-      display: flex;
-      gap: 12px;
-      padding: 14px 18px;
-      border-bottom: 1px solid rgba(26,22,18,0.06);
-      transition: background 0.12s;
-    }
-    .stop-item:last-child { border-bottom: none; }
-    .stop-item:hover { background: var(--warm); }
-
-    .stop-num {
-      width: 22px;
-      height: 22px;
-      min-width: 22px;
-      border-radius: 50%;
-      background: var(--terracotta);
-      color: white;
-      font-size: 10px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 1px;
-    }
-    .stop-body { flex: 1; min-width: 0; }
-    .stop-top {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 2px;
-    }
-    .stop-name {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--ink);
-    }
-    .stop-type {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--terracotta);
-    }
-    .stop-address {
-      font-size: 11px;
-      color: rgba(26,22,18,0.45);
-      margin-bottom: 4px;
-    }
-    .stop-note {
-      font-size: 12px;
-      font-weight: 300;
-      color: rgba(26,22,18,0.7);
-      line-height: 1.55;
-    }
-    .stop-hours {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      color: var(--sage);
-      margin-top: 5px;
-    }
-    .stop-maps-link {
-      display: inline-block;
-      margin-top: 5px;
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--terracotta);
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
-
-    /* ─── EMPTY STATE ─── */
-    .no-results {
-      text-align: center;
-      padding: 60px 24px;
-      color: rgba(26,22,18,0.4);
-    }
-    .no-results p { font-size: 16px; font-weight: 300; }
-
-    /* ─── FOOTER ─── */
-    .site-footer {
-      background: var(--midnight);
-      color: rgba(255,255,255,0.4);
-      text-align: center;
-      padding: 28px 20px;
-      font-size: 11px;
-      letter-spacing: 0.06em;
-    }
-    .site-footer a { color: var(--blush); }
-
-    /* ─── SUNSET REDIRECT OVERLAY ─── */
-    #sunset-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: var(--midnight);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-      padding: 32px;
-      text-align: center;
-      color: white;
-    }
-    #sunset-overlay.show { display: flex; flex-direction: column; gap: 16px; }
-    #sunset-overlay h2 { font-family: var(--serif); font-size: 28px; }
-    #sunset-overlay p { font-weight: 300; color: rgba(255,255,255,0.7); max-width: 340px; }
-    #sunset-overlay a {
-      display: inline-block;
-      background: var(--blush);
-      color: var(--midnight);
-      padding: 12px 28px;
-      border-radius: 24px;
-      font-weight: 500;
-      font-size: 14px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SoMe — Good plans start here</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root { --ink:#0e0c0a; --cream:#f5f0e8; --blush:#e8b89a; --terracotta:#c96a3a; --sage:#8a9e82; --muted:#7a7268; --gold:#c9a84c; }
+  html,body { height:100%; font-family:'DM Sans',sans-serif; background:var(--ink); color:var(--cream); overflow-x:hidden; }
+  body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; opacity:0.6; }
+  .bg-mesh { position:fixed; inset:0; background:radial-gradient(ellipse 60% 50% at 80% 20%,rgba(201,106,58,.12) 0%,transparent 60%),radial-gradient(ellipse 40% 60% at 10% 80%,rgba(138,158,130,.10) 0%,transparent 55%),radial-gradient(ellipse 50% 40% at 50% 50%,rgba(201,168,76,.06) 0%,transparent 60%); pointer-events:none; z-index:0; }
+  .container { position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 24px 80px; }
+  .wordmark { font-family:'Cormorant Garamond',serif; font-weight:300; font-style:italic; font-size:clamp(2.4rem,8vw,4rem); letter-spacing:.04em; color:var(--cream); margin-bottom:6px; opacity:0; animation:fadeUp .8s ease forwards .1s; }
+  .tagline { font-size:.75rem; font-weight:300; letter-spacing:.25em; text-transform:uppercase; color:var(--muted); margin-bottom:52px; opacity:0; animation:fadeUp .8s ease forwards .25s; }
+  .step { width:100%; max-width:440px; opacity:0; animation:fadeUp .8s ease forwards .4s; }
+  .step+.step { margin-top:32px; }
+  .step-label { font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; color:var(--blush); margin-bottom:12px; }
+  .step-label span { color:var(--muted); margin-left:6px; font-size:.58rem; }
+  .step-question { font-family:'Cormorant Garamond',serif; font-size:clamp(1.2rem,4vw,1.6rem); font-weight:300; line-height:1.3; margin-bottom:16px; color:var(--cream); }
+  .tiles { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .tiles.three { grid-template-columns:1fr 1fr 1fr; }
+  .tile { border:1px solid rgba(245,240,232,.12); border-radius:12px; padding:13px 11px; cursor:pointer; transition:all .2s ease; background:rgba(245,240,232,.03); text-align:left; position:relative; overflow:hidden; }
+  .tile::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(201,106,58,.15),transparent); opacity:0; transition:opacity .2s; }
+  .tile:hover { border-color:rgba(232,184,154,.4); transform:translateY(-1px); }
+  .tile:hover::before { opacity:1; }
+  .tile.selected { border-color:var(--blush); background:rgba(232,184,154,.08); }
+  .tile.selected::before { opacity:1; }
+  .tile-emoji { font-size:1.2rem; margin-bottom:4px; display:block; }
+  .tile-name { font-size:.81rem; font-weight:500; color:var(--cream); display:block; }
+  .tile-sub { font-size:.66rem; color:var(--muted); margin-top:2px; display:block; line-height:1.4; }
+  .coming-soon-line { font-size:.62rem; letter-spacing:.15em; text-transform:uppercase; color:rgba(122,114,104,.4); margin-top:14px; text-align:center; }
+  .tag-row { display:flex; flex-wrap:wrap; gap:7px; }
+  .tag { border:1px solid rgba(245,240,232,.14); border-radius:20px; padding:6px 13px; font-size:.7rem; letter-spacing:.05em; cursor:pointer; transition:all .2s; background:transparent; color:rgba(245,240,232,.55); }
+  .tag:hover { border-color:rgba(232,184,154,.4); color:var(--cream); }
+  .tag.selected { border-color:var(--blush); color:var(--blush); background:rgba(232,184,154,.08); }
+  .divider { width:100%; max-width:440px; height:1px; background:linear-gradient(90deg,transparent,rgba(245,240,232,.1),transparent); margin:2px 0; opacity:0; animation:fadeUp .8s ease forwards .55s; }
+  .btn-generate { width:100%; max-width:440px; margin-top:28px; padding:17px 24px; background:var(--terracotta); color:var(--cream); border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-size:.88rem; font-weight:500; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; transition:all .25s ease; opacity:0; animation:fadeUp .8s ease forwards .7s; }
+  .btn-generate:hover { background:#d97a4a; transform:translateY(-1px); box-shadow:0 8px 24px rgba(201,106,58,.3); }
+  .btn-generate:disabled { opacity:.35; cursor:not-allowed; transform:none; box-shadow:none; }
+  .result-card { display:none; width:100%; max-width:440px; border:1px solid rgba(245,240,232,.12); border-radius:16px; overflow:hidden; background:rgba(245,240,232,.03); }
+  .result-card.visible { display:block; animation:fadeUp .6s ease forwards; }
+  .result-header { padding:20px 20px 14px; border-bottom:1px solid rgba(245,240,232,.08); }
+  .result-badge { display:inline-block; font-size:.58rem; letter-spacing:.2em; text-transform:uppercase; color:var(--blush); border:1px solid rgba(232,184,154,.3); padding:4px 10px; border-radius:20px; margin-bottom:8px; }
+  .result-title { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:300; color:var(--cream); line-height:1.3; margin-bottom:8px; }
+  .walk-badge { display:inline-flex; align-items:center; gap:5px; font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; padding:4px 10px; border-radius:20px; border:1px solid; }
+  .walk-badge.walkable { color:var(--sage); border-color:rgba(138,158,130,.35); background:rgba(138,158,130,.08); }
+  .walk-badge.mixed { color:var(--gold); border-color:rgba(201,168,76,.35); background:rgba(201,168,76,.08); }
+  .result-body { padding:14px 16px; display:flex; flex-direction:column; gap:0; }
+  .stop-card { border:1px solid rgba(245,240,232,.08); border-radius:10px; padding:13px; }
+  .stop-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:3px; }
+  .stop-left { flex:1; }
+  .stop-time { font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:var(--blush); margin-bottom:3px; }
+  .stop-name { font-size:.92rem; font-weight:500; color:var(--cream); }
+  .stop-type-badge { font-size:.58rem; letter-spacing:.1em; text-transform:uppercase; padding:3px 8px; border-radius:10px; border:1px solid rgba(245,240,232,.1); color:var(--muted); white-space:nowrap; margin-left:8px; margin-top:2px; }
+  .stop-note { font-size:.76rem; color:rgba(245,240,232,.58); line-height:1.55; margin:7px 0 9px; }
+  .stop-meta { display:flex; align-items:center; justify-content:space-between; }
+  .stop-price { font-size:.68rem; letter-spacing:.08em; color:var(--sage); }
+  .stop-directions { display:flex; align-items:center; gap:5px; font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--blush); text-decoration:none; border:1px solid rgba(232,184,154,.25); border-radius:20px; padding:4px 10px; transition:all .2s; }
+  .stop-directions:hover { background:rgba(232,184,154,.1); border-color:var(--blush); }
+  .result-closing { padding:4px 20px 16px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:.95rem; color:rgba(245,240,232,.45); line-height:1.6; }
+  .moment-confirm { margin:0 16px 4px; padding:20px 0; border-top:1px solid rgba(245,240,232,.08); }
+  .moment-headline { font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-weight:300; font-style:italic; color:var(--cream); margin-bottom:6px; text-align:center; }
+  .moment-sub { font-size:.76rem; color:var(--muted); line-height:1.7; margin-bottom:16px; text-align:center; }
+  .btn-app { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:var(--terracotta); color:var(--cream); border:none; border-radius:10px; padding:15px 20px; font-family:'DM Sans',sans-serif; font-size:.84rem; font-weight:500; letter-spacing:.03em; cursor:pointer; transition:all .2s; text-decoration:none; margin-bottom:10px; }
+  .btn-app:hover { background:#d97a4a; transform:translateY(-1px); box-shadow:0 6px 20px rgba(201,106,58,.3); }
+  .bridge-note { font-size:.65rem; color:rgba(245,240,232,.3); letter-spacing:.06em; text-align:center; margin-bottom:14px; }
+  .action-row { display:flex; gap:8px; margin-bottom:4px; }
+  .btn-action { flex:1; padding:11px 8px; background:transparent; border:1px solid rgba(245,240,232,.14); border-radius:10px; color:var(--muted); font-family:'DM Sans',sans-serif; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:6px; text-decoration:none; }
+  .btn-action:hover { color:var(--cream); border-color:rgba(245,240,232,.25); }
+  .result-footer { padding:12px 16px 20px; display:flex; flex-direction:column; gap:9px; border-top:1px solid rgba(245,240,232,.08); }
+  .btn-regen { width:100%; padding:13px; background:transparent; border:1px solid rgba(245,240,232,.18); border-radius:10px; color:var(--cream); font-family:'DM Sans',sans-serif; font-size:.78rem; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; transition:all .2s; }
+  .btn-regen:hover { border-color:var(--blush); background:rgba(232,184,154,.06); }
+  .btn-back { width:100%; padding:11px; background:transparent; border:1px solid rgba(245,240,232,.1); border-radius:10px; color:var(--muted); font-family:'DM Sans',sans-serif; font-size:.76rem; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; transition:all .2s; }
+  .btn-back:hover { color:var(--cream); border-color:rgba(245,240,232,.2); }
+  .site-footer { margin-top:40px; display:flex; flex-direction:column; align-items:center; gap:14px; opacity:0; animation:fadeUp .8s ease forwards .9s; }
+  .social-row { display:flex; gap:12px; align-items:center; }
+  .social-link { display:flex; flex-direction:column; align-items:center; gap:6px; text-decoration:none; transition:opacity .2s; opacity:.5; }
+  .social-link:hover { opacity:.85; }
+  .social-link svg { width:24px; height:24px; }
+  .social-label { font-size:.58rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  .feedback-link { font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:rgba(122,114,104,.35); text-decoration:none; border-bottom:1px solid rgba(122,114,104,.2); padding-bottom:2px; transition:all .2s; }
+  .feedback-link:hover { color:rgba(122,114,104,.6); }
+  .toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(20px); background:rgba(245,240,232,.1); border:1px solid rgba(245,240,232,.2); backdrop-filter:blur(8px); color:var(--cream); font-size:.75rem; padding:10px 20px; border-radius:20px; opacity:0; transition:all .3s ease; pointer-events:none; z-index:999; white-space:nowrap; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+</style>
 </head>
-
 <body>
-
-<!-- Sunset redirect overlay -->
-<div id="sunset-overlay">
-  <h2>Good things end well.</h2>
-  <p>This campaign wrapped in November 2026. Download SoMe to keep exploring.</p>
-  <a href="https://apps.apple.com/us/app/some-match-plan-meet/id6740887603" target="_blank">Download SoMe →</a>
-</div>
-
-<!-- Header -->
-<header class="site-header">
-  <a class="site-logo" href="/">So<span>Me</span></a>
-  <a class="app-link" href="https://apps.apple.com/us/app/some-match-plan-meet/id6740887603" target="_blank">Get the App</a>
-</header>
-
-<!-- Hero -->
-<section class="hero">
-  <p class="hero-eyebrow">Curated date routes · Los Angeles</p>
-  <h1>Plan less.<br><em>Do more.</em> Together.</h1>
-  <p class="hero-sub">18 itineraries across Pasadena, Silver Lake, and Culver City. Walkable, driveable, and mixed — two options each.</p>
-</section>
-
-<!-- Filters -->
-<div class="filter-section">
-  <div class="filter-row">
-    <button class="filter-btn active" data-filter="all">All</button>
-    <button class="filter-btn" data-filter="pasadena">Pasadena</button>
-    <button class="filter-btn" data-filter="silverlake">Silver Lake</button>
-    <button class="filter-btn" data-filter="culvercity">Culver City</button>
-    <button class="filter-btn" data-filter="walkable">Walkable</button>
-    <button class="filter-btn" data-filter="driveable">Full Day Drive</button>
-    <button class="filter-btn" data-filter="mixed">Mixed</button>
+<div class="bg-mesh"></div>
+<div class="toast" id="toast"></div>
+<div class="container">
+  <div class="wordmark">SoMe</div>
+  <div class="tagline">Good plans start here.</div>
+  <div id="cityBanner" style="display:none;width:100%;max-width:440px;margin-bottom:24px;opacity:0;animation:fadeUp .8s ease forwards .2s;">
+    <div style="display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(232,184,154,.3);border-radius:12px;padding:12px 16px;background:rgba(232,184,154,.06);">
+      <div>
+        <div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--blush);margin-bottom:3px;">Exploring in</div>
+        <div id="cityBannerName" style="font-size:.95rem;font-weight:500;color:var(--cream);"></div>
+      </div>
+      <button onclick="changeCity()" style="background:transparent;border:1px solid rgba(245,240,232,.2);border-radius:8px;padding:6px 12px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;">Change</button>
+    </div>
+  </div>
+  <div class="step" id="step1">
+    <div class="step-label">Step 01</div>
+    <div class="step-question">Ready to explore?</div>
+    <div style="font-size:.8rem;font-weight:300;color:var(--muted);line-height:1.7;">Pick your neighborhood, tell us how you're getting around, and we'll build your adventure.</div>
+  </div>
+  <div class="divider"></div>
+  <div class="step" id="step2" style="animation-delay:.45s">
+    <div class="step-label">Step 02</div>
+    <div class="step-question">Where in LA are you?</div>
+    <div class="tiles three">
+      <div class="tile" data-value="Silver Lake" onclick="selectTile(this,'neighborhood')"><span class="tile-emoji">🌿</span><span class="tile-name">Silver Lake</span></div>
+      <div class="tile" data-value="Culver City" onclick="selectTile(this,'neighborhood')"><span class="tile-emoji">🎬</span><span class="tile-name">Culver City</span></div>
+      <div class="tile" data-value="Pasadena" onclick="selectTile(this,'neighborhood')"><span class="tile-emoji">🌸</span><span class="tile-name">Pasadena</span></div>
+    </div>
+  </div>
+  <div class="divider" style="animation-delay:.5s"></div>
+  <div class="step" id="step4" style="animation-delay:.55s">
+    <div class="step-label">Step 03</div>
+    <div class="step-question">How are you getting around?</div>
+    <div class="tiles">
+      <div class="tile" data-value="foot" onclick="selectTile(this,'transport')"><span class="tile-emoji">🚶</span><span class="tile-name">On foot</span><span class="tile-sub">Keep it walkable</span></div>
+      <div class="tile" data-value="car" onclick="selectTile(this,'transport')"><span class="tile-emoji">🚗</span><span class="tile-name">Have a car</span><span class="tile-sub">Open to driving between spots</span></div>
+    </div>
+  </div>
+  <div class="divider" style="animation-delay:.6s"></div>
+  <div class="step" id="step5" style="animation-delay:.6s">
+    <div class="step-label">Optional <span>— what are you into?</span></div>
+    <div class="tag-row">
+      <div class="tag" onclick="toggleTag(this,'interest')" data-value="art">🎨 Art & Culture</div>
+      <div class="tag" onclick="toggleTag(this,'interest')" data-value="food">🍜 Food & Drinks</div>
+      <div class="tag" onclick="toggleTag(this,'interest')" data-value="outdoors">🌿 Outdoors</div>
+      <div class="tag" onclick="toggleTag(this,'interest')" data-value="music">🎶 Music & Nightlife</div>
+      <div class="tag" onclick="toggleTag(this,'interest')" data-value="creative">🪴 Hands-On & Creative</div>
+    </div>
+  </div>
+  <button class="btn-generate" id="generateBtn" onclick="generate()" disabled>Find My Adventure →</button>
+  <div id="sunsetScreen" style="display:none;width:100%;max-width:440px;text-align:center;padding:48px 24px;">
+    <div style="font-size:3.5rem;margin-bottom:24px;">🙂</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:2rem;color:var(--cream);margin-bottom:12px;line-height:1.3;">The adventure continues.</div>
+    <div style="font-size:.85rem;color:var(--muted);line-height:1.8;margin-bottom:32px;">This campaign has wrapped, but SoMe is still out there — with an AI date planner, exclusive venue perks, and a live city map. Download the app to keep going.</div>
+    <a href="https://apps.apple.com/us/app/some-match-plan-meet/id6740887603" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--terracotta);color:var(--cream);border-radius:12px;padding:16px 28px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;letter-spacing:.03em;text-decoration:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="opacity:.85"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>Download SoMe — Free</a>
+    <div style="font-size:.65rem;color:rgba(122,114,104,.4);margin-top:16px;letter-spacing:.1em;">@socialwithsome</div>
+  </div>
+  <div class="result-card" id="resultCard">
+    <div class="result-header">
+      <div class="result-badge" id="resultBadge"></div>
+      <div class="result-title" id="resultTitle"></div>
+      <div id="walkBadge"></div>
+    </div>
+    <div class="result-body" id="resultBody"></div>
+    <div class="result-closing" id="resultClosing"></div>
+    <div class="moment-confirm" id="momentConfirm">
+      <div class="moment-headline" id="momentHeadline"></div>
+      <div class="moment-sub" id="momentSub"></div>
+      <a class="btn-app" id="btnApp" href="https://apps.apple.com/us/app/some-match-plan-meet/id6740887603" target="_blank"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.85"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg><span id="bridgeCTA">Download SoMe — Free</span></a>
+      <div class="bridge-note">Free on the App Store · iOS</div>
+      <div class="action-row">
+        <button class="btn-action" onclick="shareItinerary()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>Share</button>
+        <a class="btn-action" id="calendarLink" href="#" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Add to Calendar</a>
+      </div>
+      <button class="btn-back" style="margin-top:8px;" onclick="generate()">&#8635; Show me something different</button>
+    </div>
+    <div class="result-footer">
+      <button class="btn-back" onclick="resetFlow()">← Change my selections</button>
+    </div>
+  </div>
+  <div class="site-footer">
+    <div class="social-row">
+      <a class="social-link" href="https://www.instagram.com/socialwithsome" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="var(--cream)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5" fill="var(--cream)" stroke="none"/></svg><span class="social-label">Instagram</span></a>
+      <a class="social-link" href="https://www.tiktok.com/@socialwithsome" target="_blank"><svg viewBox="0 0 24 24" fill="var(--cream)" stroke="none"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.31 6.31 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg><span class="social-label">TikTok</span></a>
+      <a class="social-link" href="https://apps.apple.com/us/app/some-match-plan-meet/id6740887603" target="_blank"><svg viewBox="0 0 24 24" fill="var(--cream)" stroke="none"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg><span class="social-label">App Store</span></a>
+    </div>
+    <a class="feedback-link" href="https://form.typeform.com/to/gVrsmWWQ" target="_blank">Share feedback</a>
   </div>
 </div>
-
-<!-- Main -->
-<main class="main" id="main-content">
-  <!-- Rendered by JS -->
-</main>
-
-<footer class="site-footer">
-  <p>Made with SoMe &mdash; <a href="https://apps.apple.com/us/app/some-match-plan-meet/id6740887603" target="_blank">Download the app</a></p>
-</footer>
-
 <script>
-// ─────────────────────────────────────────────
-// DATA
-// ─────────────────────────────────────────────
+const state={dateType:'exploring',neighborhood:null,transport:null,timeOfDay:null,interests:[],vibes:[]};
+let currentItinerary=[];
+const bridge={exploring:{headline:"Your adventure starts now.",sub:"Like what you see? SoMe's AI date planner builds itineraries like this around your interests — and quietly connects you with someone who'd love to come along.",cta:"Try SoMe — Free"},matching:{headline:"Good plan. Now find someone to share it with.",sub:"SoMe matches you by shared interests and builds the full itinerary together. No awkward intros — the plan does the talking.",cta:"Find someone on SoMe — Free"}};
 
-const ITINERARIES = {
-  pasadena: {
-    label: "Pasadena",
-    walkable: {
-      label: "Walkable",
-      a: {
-        title: "The Date Forward",
-        tag: "Old Town · All on foot · ~1 mi",
-        stops: [
-          { name: "BadAsh Bakes", address: "247 E Colorado Blvd", type: "Bakery", note: "Black woman-owned, TikTok-viral cinnamon rolls. Get the matcha cinnamon and banana pudding. Wed–Sat only.", hours: "Wed–Sat 8am–4pm", mapsUrl: "https://maps.google.com/?q=BadAsh+Bakes+Pasadena" },
-          { name: "Neon Retro Arcade", address: "28 S Raymond Ave", type: "Activity", note: "$15/hr, 50+ vintage games. No skill required — competitive banter starts immediately.", hours: "Daily 11am–10pm", mapsUrl: "https://maps.google.com/?q=Neon+Retro+Arcade+Pasadena" },
-          { name: "Kinrose Creamery", address: "140 Mills Place", type: "Dessert", note: "Persian ice cream tucked in a courtyard alley. 4.9 stars. Saffron pistachio rose or walnut baklava.", hours: "Daily from 1pm", mapsUrl: "https://maps.google.com/?cid=10050736346540062426" },
-          { name: "Ladies & Gentlemen", address: "59 E Colorado Blvd B-100", type: "Speakeasy", note: "Entrance disguised as a restroom door. Reservations required. Order the Milk & Coffee cocktail.", hours: "Thu–Sat 6pm–1am · Sun 4–11pm", mapsUrl: "https://maps.google.com/?cid=8361746082093718286" }
-        ]
-      },
-      b: {
-        title: "The Slow Afternoon",
-        tag: "Old Town · All on foot · ~1.5 mi",
-        stops: [
-          { name: "Chado Tea Room", address: "79 N Raymond Ave", type: "Tea", note: "British-style afternoon tea, massive loose-leaf menu. Scones, sandwiches, pastries. Unhurried by design.", hours: "Daily 11am–6pm", mapsUrl: "https://maps.google.com/?q=Chado+Tea+Room+Pasadena" },
-          { name: "Norton Simon Museum", address: "411 W Colorado Blvd", type: "Museum", note: "Degas, Monet, Picasso, Van Gogh — all in one building. $20 admission. Sculpture garden is worth it alone.", hours: "Mon/Thu–Fri noon–5pm · Sat–Sun noon–7pm", mapsUrl: "https://maps.google.com/?q=Norton+Simon+Museum+Pasadena" },
-          { name: "Odd One Out Tea", address: "14 S Fair Oaks Ave", type: "Boba", note: "Award-winning Taiwanese boba from Taipei. Champion Milk Tea at 50% sweetness. Opens noon.", hours: "Daily noon–9pm (Fri–Sat until 10pm)", mapsUrl: "https://maps.google.com/?cid=10397644344963371112" },
-          { name: "The Blind Donkey", address: "53 Union St", type: "Bar", note: "4.5 stars. Craft cocktails, carne asada fries, neighborhood bar energy.", hours: "Mon–Thu 5pm–1am · Fri–Sun 1pm–1am", mapsUrl: "https://maps.google.com/?q=Blind+Donkey+Pasadena" }
-        ]
-      }
-    },
-    driveable: {
-      label: "Full Day Drive",
-      a: {
-        title: "The Full Day Drive",
-        tag: "Pasadena-wide · 4–5 car moves · Best Fri or Sun",
-        stops: [
-          { name: "Salted Butter Company", address: "1 W California Blvd", type: "Bakery", note: "French onion soup pastry, earl grey orange. Quieter than BadAsh. Closed Tuesdays.", hours: "Wed–Mon 7am–4pm (Sun from 8am)", mapsUrl: "https://maps.google.com/?cid=13656003261933266454" },
-          { name: "Brookside Golf Club — Driving Range", address: "1133 Rosemont Ave", type: "Activity", note: "Next to the Rose Bowl. Buckets of balls, open sky. No skill required.", hours: "Daily 6am–4:45pm", mapsUrl: "https://maps.google.com/?cid=18093686598793472282" },
-          { name: "Storrier Stearns Japanese Garden", address: "270 Arlington Dr", type: "Sightseeing", note: "1930s hidden garden on the National Register. $12. Koi ponds, four stone bridges. Fri 4–8pm · Sun 10am–4pm ONLY.", hours: "Fri 4–8pm · Sun 10am–4pm", mapsUrl: "https://maps.google.com/?cid=16709141973429120752" },
-          { name: "Perle", address: "43 Union St", type: "Dinner", note: "Michelin Guide French. Order escargot, French onion soup, Dover sole. Ask for the soufflé at the start. Closed Tuesdays.", hours: "Mon/Wed–Sun 5–9pm", mapsUrl: "https://maps.google.com/?cid=12172979216953438235" },
-          { name: "1886 Bar at The Raymond", address: "1250 S Fair Oaks Ave", type: "Nightcap", note: "Craftsman cottage, real fireplace, oil lanterns. Sit inside by the fire. 4.7 stars.", hours: "Tue–Sun from 4pm", mapsUrl: "https://maps.google.com/?cid=16191660126285800894" }
-        ]
-      },
-      b: {
-        title: "The Architecture Day",
-        tag: "Pasadena-wide · 4–5 car moves",
-        stops: [
-          { name: "BadAsh Bakes", address: "247 E Colorado Blvd", type: "Bakery", note: "Cinnamon rolls, matcha drinks. Black woman-owned. Wed–Sat only.", hours: "Wed–Sat 8am–4pm", mapsUrl: "https://maps.google.com/?q=BadAsh+Bakes+Pasadena" },
-          { name: "Rose Bowl Loop", address: "Seco St & Rosemont Ave", type: "Walk", note: "3-mile flat loop around the Rose Bowl. Free. San Gabriel Mountains backdrop.", hours: "Always open", mapsUrl: "https://maps.google.com/?q=Rose+Bowl+Loop+Pasadena" },
-          { name: "Norton Simon Museum", address: "411 W Colorado Blvd", type: "Museum", note: "Degas, Monet, Van Gogh, Picasso, Rembrandt. $20. Thu–Mon.", hours: "Mon/Thu–Fri noon–5pm · Sat–Sun noon–7pm", mapsUrl: "https://maps.google.com/?q=Norton+Simon+Museum" },
-          { name: "Osawa Sushi", address: "77 N Raymond Ave", type: "Dinner", note: "4.7 stars. Sit at the sushi bar. Salmon aburi, cucumber citrus sesame. Reserve ahead. Closed Mon–Tue.", hours: "Wed–Sun lunch & dinner", mapsUrl: "https://maps.google.com/?cid=4006346390707208449" },
-          { name: "1886 Bar at The Raymond", address: "1250 S Fair Oaks Ave", type: "Nightcap", note: "Real fireplace, craftsman cottage. 4.7 stars.", hours: "Tue–Sun from 4pm", mapsUrl: "https://maps.google.com/?cid=16191660126285800894" }
-        ]
-      }
-    },
-    mixed: {
-      label: "Mixed",
-      a: {
-        title: "The Mixed Day",
-        tag: "South Pas + Old Town · Drive once, park once",
-        stops: [
-          { name: "iTennis / iPickle Arroyo Seco", address: "920 Lohman Ln, South Pasadena", type: "Activity (Drive)", note: "Book pickleball in advance. $15–25/person. 4 permanent courts. Open daily from 8am.", hours: "Daily 8am–10:30pm", mapsUrl: "https://maps.google.com/?cid=17189920873606364992" },
-          { name: "Odd One Out Tea", address: "14 S Fair Oaks Ave", type: "Boba (Walk)", note: "Park once in Old Town. Award-winning Taiwanese boba. Champion Milk Tea. Opens noon.", hours: "Daily noon–9pm (Fri–Sat until 10pm)", mapsUrl: "https://maps.google.com/?cid=10397644344963371112" },
-          { name: "Plushumi", address: "12 S Fair Oaks Ave", type: "Workshop (Walk)", note: "30 feet from Odd One Out. 2-hour plushie workshop. 5.0 stars. Book in advance. Open Mon/Thu–Sun.", hours: "Mon 3–8pm · Thu–Fri 3–8pm · Sat–Sun 10am–8pm", mapsUrl: "https://maps.google.com/?cid=16671715938851691552" },
-          { name: "Osawa Sushi", address: "77 N Raymond Ave", type: "Dinner (Walk)", note: "5-min walk. 4.7 stars. Sit at the sushi bar. Reserve ahead. Closed Mon–Tue.", hours: "Wed–Sun lunch & dinner", mapsUrl: "https://maps.google.com/?cid=4006346390707208449" },
-          { name: "Ladies & Gentlemen", address: "59 E Colorado Blvd B-100", type: "Speakeasy (Walk)", note: "2-min walk. Entrance as a restroom door. Reservations required.", hours: "Thu–Sat 6pm–1am · Sun 4–11pm", mapsUrl: "https://maps.google.com/?cid=8361746082093718286" }
-        ]
-      },
-      b: {
-        title: "The Active Day",
-        tag: "Pasadena-wide · Drive twice, walk middle",
-        stops: [
-          { name: "Salted Butter Company", address: "1 W California Blvd", type: "Bakery (Drive)", note: "Start south of Old Town. French onion pastry. Opens 7am. Closed Tues.", hours: "Wed–Mon 7am–4pm", mapsUrl: "https://maps.google.com/?cid=13656003261933266454" },
-          { name: "Brookside Driving Range", address: "1133 Rosemont Ave", type: "Activity (Drive)", note: "5 min north. Buckets of balls by the Rose Bowl. No skill required.", hours: "Daily 6am–4:45pm", mapsUrl: "https://maps.google.com/?cid=18093686598793472282" },
-          { name: "Kinrose Creamery", address: "140 Mills Place", type: "Dessert (Walk)", note: "Drive into Old Town, park once. Persian ice cream in a courtyard alley. 4.9 stars.", hours: "Daily from 1pm (Fri–Sat from noon)", mapsUrl: "https://maps.google.com/?cid=10050736346540062426" },
-          { name: "Chado Tea Room", address: "79 N Raymond Ave", type: "Tea (Walk)", note: "Afternoon tea, massive loose-leaf menu. 4.4 stars.", hours: "Daily 11am–6pm", mapsUrl: "https://maps.google.com/?q=Chado+Tea+Room+Pasadena" },
-          { name: "Perle", address: "43 Union St", type: "Dinner (Walk)", note: "Michelin Guide French. Ask for the soufflé upfront. Closed Tuesdays.", hours: "Mon/Wed–Sun 5–9pm", mapsUrl: "https://maps.google.com/?cid=12172979216953438235" }
-        ]
-      }
-    }
-  },
-
-  silverlake: {
-    label: "Silver Lake",
-    walkable: {
-      label: "Walkable",
-      a: {
-        title: "The Sunset Strip",
-        tag: "Sunset Blvd · All on foot · ~1.5 mi",
-        stops: [
-          { name: "Dayglow", address: "3206 Sunset Blvd", type: "Coffee", note: "Pastel interiors, rotating world-roaster program. Euphoric Latte. Opens 7am.", hours: "Daily 7am–7pm", mapsUrl: "https://maps.google.com/?cid=1580859200181271357" },
-          { name: "Photomatica", address: "3827 Sunset Blvd", type: "Activity", note: "Vintage film photo booths from the 1930s. 5 B&W + 1 color. Opens 11am weekends.", hours: "Mon–Thu 1–9pm · Fri–Sat 11am–11pm · Sun 11am–9pm", mapsUrl: "https://maps.google.com/?cid=8101264447191544612" },
-          { name: "Bacari Silver Lake", address: "3626 Sunset Blvd", type: "Lunch", note: "Request the upstairs patio — tree-canopied secret garden. Lamb hummus, octopus yuzu.", hours: "Daily from 5pm (Sat–Sun brunch from 10:30am)", mapsUrl: "https://maps.google.com/?cid=15759891190649939146" },
-          { name: "Covell Wine Bar", address: "4628 Hollywood Blvd", type: "Wine", note: "No menu. Describe your taste, bartender pours. Dark wood, dimly lit. 4.7 stars.", hours: "Mon–Fri 4pm–midnight · Sat–Sun noon–midnight", mapsUrl: "https://maps.google.com/?cid=8635742887077909744" },
-          { name: "El Cid", address: "4212 Sunset Blvd", type: "Dinner + Show", note: "Spanish tavern since 1962. Flamenco dinner shows on Saturdays. Candlelit and historic.", hours: "Check elcidsunset.com", mapsUrl: "https://maps.google.com/?cid=15367636814524147712" }
-        ]
-      },
-      b: {
-        title: "The Slow Burn",
-        tag: "Sunset Blvd · All on foot · ~1 mi",
-        stops: [
-          { name: "Dinosaur Coffee", address: "4334 Sunset Blvd", type: "Coffee", note: "POC and woman-owned Silver Lake institution. Burnt Sugar Latte. Peaceful back patio.", hours: "Mon–Fri 6am–6pm · Sat–Sun 7am–6pm", mapsUrl: "https://maps.google.com/?q=Dinosaur+Coffee+Silver+Lake" },
-          { name: "Barr Seco", address: "3820 Sunset Blvd", type: "Wine + Snacks", note: "Natural wine, hamachi crudo in yuzu ponzu, miso mushroom tostadas. DJ Saturdays.", hours: "Mon–Thu 5–11pm · Fri–Sun noon–11pm", mapsUrl: "https://maps.google.com/?cid=4350448864827021597" },
-          { name: "Silver Lake Reservoir Loop", address: "2300 Silver Lake Blvd", type: "Walk", note: "2.25-mile path around the reservoir. Free, open daily.", hours: "Daily 6:30am–6pm", mapsUrl: "https://maps.google.com/?cid=4184605460034101729" },
-          { name: "Donna's", address: "1538 Sunset Blvd", type: "Dinner", note: "Dimly lit Italian. Garlic bread, vodka pasta, chicken parm. 4.5 stars.", hours: "Daily 5–10pm", mapsUrl: "https://maps.google.com/?cid=14705031909009413138" },
-          { name: "The Semi-Tropic", address: "1412 Glendale Blvd", type: "Nightcap", note: "Disco ball, foliage patio, vintage surround sound. 4.7 stars. Open until 2am Fri–Sat.", hours: "Mon–Thu 2pm–midnight · Fri 2pm–2am · Sat 11am–2am", mapsUrl: "https://maps.google.com/?cid=247556802870443288" }
-        ]
-      }
-    },
-    driveable: {
-      label: "Full Day Drive",
-      a: {
-        title: "The Full Day Drive",
-        tag: "Silver Lake + Griffith · 3–4 car moves",
-        stops: [
-          { name: "LAMILL Coffee", address: "1636 Silver Lake Blvd", type: "Coffee", note: "Silver Lake institution near the reservoir. Hong Kong milk tea. Opens 7am.", hours: "Daily 7am–3pm", mapsUrl: "https://maps.google.com/?cid=5720512711582493492" },
-          { name: "Silver Lake Meadows & Reservoir", address: "2300 Silver Lake Blvd", type: "Sightseeing", note: "2.25-mile loop. Meadow for sitting. San Gabriel Mountains backdrop. Free.", hours: "Daily 6:30am–6pm", mapsUrl: "https://maps.google.com/?cid=4184605460034101729" },
-          { name: "Neutra VDL Studio", address: "2300 Silver Lake Blvd", type: "Architecture", note: "Finest mid-century modern in California, overlooking the reservoir. $15. Saturdays only, 11am–3pm.", hours: "Sat 11am–3pm only", mapsUrl: "https://maps.google.com/?cid=10745602021289180256" },
-          { name: "Griffith Observatory", address: "2800 E Observatory Rd", type: "Sightseeing", note: "Free. Arrive at sunset. Planetarium, Zeiss telescope, panoramic LA views. Closed Mondays.", hours: "Tue–Fri noon–10pm · Sat–Sun 10am–10pm", mapsUrl: "https://maps.google.com/?cid=8358407893482396380" },
-          { name: "Bar di Bello", address: "3300 Sunset Blvd", type: "Dinner", note: "Brand new 2026. Red velvet curtains, curved booths, giant Negronis. Lamb chops. Wed–Sun from 5pm.", hours: "Wed–Sun 5–11pm", mapsUrl: "https://maps.google.com/?cid=8340031596928510319" }
-        ]
-      },
-      b: {
-        title: "The East Side Loop",
-        tag: "Silver Lake + Los Feliz · 3 car moves",
-        stops: [
-          { name: "Dayglow", address: "3206 Sunset Blvd", type: "Coffee", note: "Rotating world roaster, pastel interiors, Euphoric Latte.", hours: "Daily 7am–7pm", mapsUrl: "https://maps.google.com/?cid=1580859200181271357" },
-          { name: "Claytivity Pottery Studio", address: "3028 Sunset Blvd", type: "Activity", note: "Beginner pottery on Sunset. Book in advance. Wheel throwing or hand-building.", hours: "Classes vary — claytivitypottery.com", mapsUrl: "https://maps.google.com/?cid=13830516021424046234" },
-          { name: "Griffith Observatory", address: "2800 E Observatory Rd", type: "Sightseeing", note: "Free. Arrive at sunset. Hollywood Sign views, planetarium, telescope.", hours: "Tue–Fri noon–10pm · Sat–Sun 10am–10pm", mapsUrl: "https://maps.google.com/?cid=8358407893482396380" },
-          { name: "Bacari Silver Lake", address: "3626 Sunset Blvd", type: "Dinner", note: "Secret garden patio upstairs. Lamb hummus, octopus yuzu, cocktails.", hours: "Daily from 5pm", mapsUrl: "https://maps.google.com/?cid=15759891190649939146" },
-          { name: "The Semi-Tropic", address: "1412 Glendale Blvd", type: "Nightcap", note: "Disco ball, foliage patio. 4.7 stars. Open until 2am Fri–Sat.", hours: "Mon–Thu 2pm–midnight · Fri 2pm–2am · Sat 11am–2am", mapsUrl: "https://maps.google.com/?cid=247556802870443288" }
-        ]
-      }
-    },
-    mixed: {
-      label: "Mixed",
-      a: {
-        title: "Make Something, Then Go Out",
-        tag: "Silver Lake · Drive once, park once, walk rest",
-        stops: [
-          { name: "Claytivity Pottery Studio", address: "3028 Sunset Blvd", type: "Activity (Drive)", note: "Book a pottery session. Wheel throwing or hand-building. Then park once on Sunset.", hours: "Classes vary — claytivitypottery.com", mapsUrl: "https://maps.google.com/?cid=13830516021424046234" },
-          { name: "Barr Seco", address: "3820 Sunset Blvd", type: "Wine (Walk)", note: "Natural wine + hamachi crudo + miso tostadas. DJ Saturdays.", hours: "Mon–Thu 5–11pm · Fri–Sun noon–11pm", mapsUrl: "https://maps.google.com/?cid=4350448864827021597" },
-          { name: "Silver Lake Reservoir Loop", address: "2300 Silver Lake Blvd", type: "Walk", note: "10-min walk north. 2.25-mile path, Meadow for sitting. Free.", hours: "Daily 6:30am–6pm", mapsUrl: "https://maps.google.com/?cid=4184605460034101729" },
-          { name: "Donna's", address: "1538 Sunset Blvd", type: "Dinner (Walk)", note: "Dimly lit Italian. Garlic bread, vodka pasta, chicken parm.", hours: "Daily 5–10pm", mapsUrl: "https://maps.google.com/?cid=14705031909009413138" },
-          { name: "The Semi-Tropic", address: "1412 Glendale Blvd", type: "Nightcap (Walk)", note: "Disco ball, cocktails, foliage patio. Open until 2am Fri–Sat.", hours: "Fri 2pm–2am · Sat 11am–2am", mapsUrl: "https://maps.google.com/?cid=247556802870443288" }
-        ]
-      },
-      b: {
-        title: "Photo Booths & Wine",
-        tag: "Sunset Blvd · Drive once, walk rest",
-        stops: [
-          { name: "LAMILL Coffee", address: "1636 Silver Lake Blvd", type: "Coffee (Drive)", note: "Start by the reservoir. Hong Kong milk tea or flat white. Opens 7am.", hours: "Daily 7am–3pm", mapsUrl: "https://maps.google.com/?cid=5720512711582493492" },
-          { name: "Photomatica", address: "3827 Sunset Blvd", type: "Activity (Walk)", note: "Park on Sunset. Vintage film photo booths. 5 B&W + 1 color booth.", hours: "Mon–Thu 1–9pm · Fri–Sat 11am–11pm · Sun 11am–9pm", mapsUrl: "https://maps.google.com/?cid=8101264447191544612" },
-          { name: "Bacari Silver Lake", address: "3626 Sunset Blvd", type: "Lunch (Walk)", note: "3-min walk. Upstairs secret garden patio. Lamb hummus, octopus.", hours: "Daily from 5pm (Sat–Sun brunch from 10:30am)", mapsUrl: "https://maps.google.com/?cid=15759891190649939146" },
-          { name: "Covell Wine Bar", address: "4628 Hollywood Blvd", type: "Wine (Walk)", note: "No menu. Dark and intimate. 4.7 stars.", hours: "Mon–Fri 4pm–midnight · Sat–Sun noon–midnight", mapsUrl: "https://maps.google.com/?cid=8635742887077909744" },
-          { name: "El Cid", address: "4212 Sunset Blvd", type: "Dinner + Show (Walk)", note: "Spanish tavern since 1962. Flamenco Saturdays.", hours: "Check elcidsunset.com", mapsUrl: "https://maps.google.com/?cid=15367636814524147712" }
-        ]
-      }
-    }
-  },
-
-  culvercity: {
-    label: "Culver City",
-    walkable: {
-      label: "Walkable",
-      a: {
-        title: "The Downtown Loop",
-        tag: "Washington Blvd + Main St · All on foot",
-        stops: [
-          { name: "Boba Guys", address: "8820 Washington Blvd #107", type: "Boba", note: "Inside The Platform. Customizable boba, perfectly squishy tapioca. Opens 11am.", hours: "Daily 11am–7pm (Fri–Sat until 8pm)", mapsUrl: "https://maps.google.com/?q=Boba+Guys+Culver+City" },
-          { name: "Color Me Mine", address: "9432 Washington Blvd", type: "Activity", note: "Paint-your-own pottery near the Culver Stairs. 4.9 stars. Walk-in or reserve. Open until 10pm.", hours: "Daily 10am–10pm", mapsUrl: "https://maps.google.com/?q=Color+Me+Mine+Culver+City" },
-          { name: "Yunomi Handroll", address: "9300 Culver Blvd", type: "Lunch", note: "At The Culver Steps. Fresh handrolls: spicy tuna, rock shrimp, yellowtail. Crispy seaweed is the star.", hours: "Daily noon–9:30pm (Fri–Sat until 10pm)", mapsUrl: "https://maps.google.com/?q=Yunomi+Handroll+Culver+City" },
-          { name: "Bar & Garden", address: "6142 Washington Blvd", type: "Wine", note: "Best natural wine shop in Culver City. 4.8 stars. Friday tasting flights $10.", hours: "Mon–Thu 11am–7pm · Fri 11am–8pm · Sat 11am–7pm · Sun noon–6pm", mapsUrl: "https://maps.google.com/?cid=6682375286887320680" },
-          { name: "Velvet Lounge at The Culver Hotel", address: "9400 Culver Blvd", type: "Nightcap", note: "Art Deco speakeasy in the 1924 Culver Hotel. Velvet sofas, live jazz. Fri–Sat 7pm–midnight.", hours: "Fri–Sat 7pm–midnight", mapsUrl: "https://maps.google.com/?cid=8109202976005897453" }
-        ]
-      },
-      b: {
-        title: "The Hayden Tract Side",
-        tag: "Washington Blvd + Arts District · All on foot",
-        stops: [
-          { name: "Super Domestic Coffee", address: "10054 Culver Blvd", type: "Coffee", note: "Quirky neighbourhood café with succulent wall and Polaroids of dogs. The Fox latte is the order.", hours: "Daily 7am–5pm", mapsUrl: "https://maps.google.com/?q=Super+Domestic+Coffee+Culver+City" },
-          { name: "Color Me Mine", address: "9432 Washington Blvd", type: "Activity", note: "Paint-your-own pottery. Near the Culver Stairs. 4.9 stars.", hours: "Daily 10am–10pm", mapsUrl: "https://maps.google.com/?q=Color+Me+Mine+Culver+City" },
-          { name: "Afuri", address: "9300 Culver Blvd Unit 117", type: "Lunch", note: "Japanese ramen and izakaya at The Culver Steps. Yuzu shio ramen, hamachi tartare. 4.3 stars.", hours: "Daily 11:30am–9pm", mapsUrl: "https://maps.google.com/?q=Afuri+Culver+City" },
-          { name: "Bar & Garden", address: "6142 Washington Blvd", type: "Wine", note: "Natural wine shop. 4.8 stars. Friday tasting flights $10.", hours: "Mon–Thu 11am–7pm · Fri 11am–8pm · Sat 11am–7pm · Sun noon–6pm", mapsUrl: "https://maps.google.com/?cid=6682375286887320680" },
-          { name: "Velvet Lounge at The Culver Hotel", address: "9400 Culver Blvd", type: "Nightcap", note: "Art Deco speakeasy, live jazz, velvet sofas. Fri–Sat only.", hours: "Fri–Sat 7pm–midnight", mapsUrl: "https://maps.google.com/?cid=8109202976005897453" }
-        ]
-      }
-    },
-    driveable: {
-      label: "Full Day Drive",
-      a: {
-        title: "The Full Day Drive",
-        tag: "Culver City-wide · 4–5 car moves",
-        stops: [
-          { name: "Destroyer", address: "3578 Hayden Ave", type: "Brunch", note: "Michelin-recognized café in the Hayden Tract. Avocado toast confit, beef tartare. Opens 8am, closes 3pm.", hours: "Daily 8am–3pm (Fri–Sat until 4pm)", mapsUrl: "https://maps.google.com/?cid=16590316533392511431" },
-          { name: "Color Me Mine", address: "9432 Washington Blvd", type: "Activity", note: "Paint-your-own pottery near the Culver Stairs. 4.9 stars. A 2-hour creative stop.", hours: "Daily 10am–10pm", mapsUrl: "https://maps.google.com/?q=Color+Me+Mine+Culver+City" },
-          { name: "Baldwin Hills Scenic Overlook", address: "6300 Hetzler Rd", type: "Hike", note: "500-ft peak. Panoramic views of DTLA, ocean, Hollywood Sign. Free. 4.8 stars.", hours: "Daily 6am–9pm", mapsUrl: "https://maps.google.com/?cid=1216987997297410" },
-          { name: "The Wende Museum", address: "10808 Culver Blvd", type: "Museum", note: "Free Cold War archive. Berlin Wall sections, Soviet artifacts. Beautiful garden. Fri–Sun only.", hours: "Fri–Sun (check wendemuseum.org)", mapsUrl: "https://maps.google.com/?cid=9530095075731683720" },
-          { name: "Hatchet Hall", address: "12517 Washington Blvd", type: "Dinner", note: "Upscale Southern. Cast iron cornbread is mandatory. Courtyard patio, candlelit. Reserve ahead.", hours: "Daily 5–10pm (Sat–Sun brunch 10am–2:30pm)", mapsUrl: "https://maps.google.com/?cid=15367769406950599729" }
-        ]
-      },
-      b: {
-        title: "The Hidden Culver City",
-        tag: "Culver City-wide · 4 car moves",
-        stops: [
-          { name: "Jackson Market & Deli", address: "4065 Jackson Ave", type: "Brunch", note: "Hidden since 1925. Foliage patio, koi pond. Build-your-own sandwich. No laptops. 4.6 stars.", hours: "Daily 7am–8pm", mapsUrl: "https://maps.google.com/?cid=13945452902863168014" },
-          { name: "Rolling Greens", address: "9528 Jefferson Blvd", type: "Sightseeing", note: "Plant nursery functioning as a botanical garden across 3 levels. Free to wander.", hours: "Mon–Sat 7:30am–4pm · Sun 9am–4pm", mapsUrl: "https://maps.google.com/?cid=17679992156416813838" },
-          { name: "Baldwin Hills Scenic Overlook", address: "6300 Hetzler Rd", type: "Hike", note: "500-ft panoramic overlook. Free. Stairs or loop trail. 4.8 stars.", hours: "Daily 6am–9pm", mapsUrl: "https://maps.google.com/?cid=1216987997297410" },
-          { name: "The Wende Museum", address: "10808 Culver Blvd", type: "Museum", note: "Free Cold War museum with Berlin Wall sections and beautiful garden. Fri–Sun.", hours: "Fri–Sun (check wendemuseum.org)", mapsUrl: "https://maps.google.com/?cid=9530095075731683720" },
-          { name: "Dear John's", address: "11208 Culver Blvd", type: "Dinner", note: "Rat Pack-era steakhouse. Tableside Caesar salad. Old Hollywood vibe. Tue–Sat.", hours: "Tue–Sat 5:30–9:30pm", mapsUrl: "https://maps.google.com/?q=Dear+Johns+Culver+City" }
-        ]
-      }
-    },
-    mixed: {
-      label: "Mixed",
-      a: {
-        title: "The Garden to Table",
-        tag: "Culver City · Drive once, park once, walk rest",
-        stops: [
-          { name: "Jackson Market & Deli", address: "4065 Jackson Ave", type: "Brunch (Drive)", note: "Hidden garden patio since 1925. Koi pond, build-your-own sandwich. Start here.", hours: "Daily 7am–8pm", mapsUrl: "https://maps.google.com/?cid=13945452902863168014" },
-          { name: "Museum of Jurassic Technology", address: "9341 Venice Blvd", type: "Museum (Walk)", note: "Park near Main St. Cabinet-of-curiosities museum: labyrinthine, dim, wonderful. $12. Thu–Sun.", hours: "Thu–Fri 2–8pm · Sat–Sun noon–6pm", mapsUrl: "https://maps.google.com/?cid=17049061499786862684" },
-          { name: "Color Me Mine", address: "9432 Washington Blvd", type: "Activity (Walk)", note: "2-min walk. Paint-your-own pottery. 4.9 stars.", hours: "Daily 10am–10pm", mapsUrl: "https://maps.google.com/?q=Color+Me+Mine+Culver+City" },
-          { name: "Afuri", address: "9300 Culver Blvd Unit 117", type: "Dinner (Walk)", note: "Yuzu shio ramen, hamachi tartare, cocktails. At The Culver Steps.", hours: "Daily 11:30am–9pm", mapsUrl: "https://maps.google.com/?q=Afuri+Culver+City" },
-          { name: "The Corner Door", address: "12477 Washington Blvd", type: "Nightcap (Drive)", note: "Short drive west. Intimate booths, serious cocktails. Open until 2am Fri–Sat.", hours: "Wed–Thu 5:30pm–midnight · Fri 5:30pm–1am · Sat 11am–2am", mapsUrl: "https://maps.google.com/?cid=3997714478261771529" }
-        ]
-      },
-      b: {
-        title: "The Creative Afternoon",
-        tag: "Culver City · Drive once, park once, walk rest",
-        stops: [
-          { name: "Super Domestic Coffee", address: "10054 Culver Blvd", type: "Coffee (Drive)", note: "Fox latte, succulent wall, Polaroids of dogs. Opens 7am.", hours: "Daily 7am–5pm", mapsUrl: "https://maps.google.com/?q=Super+Domestic+Coffee+Culver+City" },
-          { name: "Color Me Mine", address: "9432 Washington Blvd", type: "Activity (Walk)", note: "Park near here. Paint-your-own pottery. 4.9 stars.", hours: "Daily 10am–10pm", mapsUrl: "https://maps.google.com/?q=Color+Me+Mine+Culver+City" },
-          { name: "Yunomi Handroll", address: "9300 Culver Blvd", type: "Lunch (Walk)", note: "Fresh handrolls at The Culver Steps. Spicy tuna, rock shrimp, yellowtail.", hours: "Daily noon–9:30pm (Fri–Sat until 10pm)", mapsUrl: "https://maps.google.com/?q=Yunomi+Handroll+Culver+City" },
-          { name: "The Wende Museum", address: "10808 Culver Blvd", type: "Museum (Walk)", note: "Free Cold War museum. Beautiful garden. Fri–Sun only.", hours: "Fri–Sun (check wendemuseum.org)", mapsUrl: "https://maps.google.com/?cid=9530095075731683720" },
-          { name: "Hatchet Hall", address: "12517 Washington Blvd", type: "Dinner (Drive)", note: "Short drive. Cast iron cornbread. Courtyard patio. Reserve ahead.", hours: "Daily 5–10pm", mapsUrl: "https://maps.google.com/?cid=15367769406950599729" }
-        ]
-      }
-    }
-  }
+const venues={
+"Silver Lake":[
+  {name:"Dayglow",type:"café",price:"$$",note:"Pastel interiors, rotating world-roaster program — different beans every week. Try the Euphoric Latte.",maps:"https://maps.google.com/?q=Dayglow+Silver+Lake",zone:"sunset",tags:["food","art"]},
+  {name:"Dinosaur Coffee",type:"café",price:"$",note:"POC and woman-owned Silver Lake institution. Minimalist wood, exposed brick, peaceful back patio. Get the Burnt Sugar Latte.",maps:"https://maps.google.com/?q=Dinosaur+Coffee+Silver+Lake",zone:"sunset",tags:["food"]},
+  {name:"LAMILL Coffee",type:"café",price:"$$",note:"Silver Lake institution near the reservoir. Order the Hong Kong milk tea and stay a while.",maps:"https://maps.google.com/?q=LAMILL+Coffee+Silver+Lake",zone:"reservoir",tags:["food"]},
+  {name:"Reunion & Company",type:"café",price:"$$",note:"Start slow with an all-day café that feels like a neighborhood hug.",maps:"https://maps.google.com/?q=Reunion+and+Company+Los+Angeles",zone:"sunset",tags:["food"]},
+  {name:"Ohana Superette",type:"café",price:"$",note:"Hawaiian-inspired and feel-good — grab something fresh before the day unfolds.",maps:"https://maps.google.com/?q=Ohana+Superette+Los+Angeles",zone:"sunset",tags:["food"]},
+  {name:"Donna's",type:"restaurant",price:"$$",note:"Dimly lit Italian — garlic bread, vodka pasta, chicken parm. A room that makes every conversation feel easy.",maps:"https://maps.google.com/?q=Donnas+Los+Angeles",zone:"sunset",tags:["food"]},
+  {name:"Bacari Silver Lake",type:"restaurant",price:"$$$",note:"Request the upstairs patio — a tree-canopied secret garden. Order the lamb hummus and octopus yuzu.",maps:"https://maps.google.com/?q=Bacari+Silver+Lake",zone:"sunset",tags:["food"]},
+  {name:"Bar di Bello",type:"restaurant",price:"$$$",note:"Brand new and already buzzy — red velvet curtains, curved booths, giant Negronis. Order the lamb chops.",maps:"https://maps.google.com/?q=Bar+di+Bello+Silver+Lake",zone:"sunset",tags:["food"]},
+  {name:"Pine & Crane",type:"restaurant",price:"$$",note:"Taiwanese home cooking done right — order the dan dan noodles.",maps:"https://maps.google.com/?q=Pine+and+Crane+Silver+Lake",zone:"hyperion",tags:["food"]},
+  {name:"Barr Seco",type:"bar",price:"$$",note:"Natural wine and Latin-Japanese small plates — hamachi crudo in yuzu ponzu. DJ on Saturdays.",maps:"https://maps.google.com/?q=Barr+Seco+Silver+Lake",zone:"sunset",tags:["food","music"]},
+  {name:"Covell Wine Bar",type:"bar",price:"$$",note:"No menu. Describe what you like and the bartender pours something you've never heard of. 4.7 stars.",maps:"https://maps.google.com/?q=Covell+Wine+Bar+Los+Angeles",zone:"hyperion",tags:["food"]},
+  {name:"The Semi-Tropic",type:"bar",price:"$$",note:"Disco ball, foliage patio, vintage surround sound. Lavender cocktail is the move. Open until 2am Fri–Sat.",maps:"https://maps.google.com/?q=The+Semi+Tropic+Silver+Lake",zone:"sunset",tags:["food","music"]},
+  {name:"4100 Bar",type:"bar",price:"$",note:"Unpretentious and late-night perfect — the kind of place where good conversations happen.",maps:"https://maps.google.com/?q=4100+Bar+Los+Angeles",zone:"sunset",tags:["music"]},
+  {name:"Silver Lake Meadows",type:"outdoor",price:"$",note:"Walk the 2.25-mile reservoir path as the neighborhood comes alive around you. Free.",maps:"https://maps.google.com/?q=Silver+Lake+Meadows",zone:"reservoir",tags:["outdoors"]},
+  {name:"Sunset Junction",type:"outdoor",price:"$",note:"Wander the strip, window shop, and feel the pulse of Silver Lake.",maps:"https://maps.google.com/?q=Sunset+Junction+Silver+Lake",zone:"sunset",tags:["outdoors","art"]},
+  {name:"Photomatica",type:"activity",price:"$",note:"Step into a vintage film photo booth from the 1930s — a Silver Lake rite of passage. Five B&W booths and one color.",maps:"https://maps.google.com/?q=Photomatica+Los+Angeles",zone:"sunset",tags:["creative","art"]},
+  {name:"Claytivity Pottery Studio",type:"activity",price:"$$",note:"Get your hands in clay — beginner wheel throwing or hand-building in a laid-back Sunset Blvd studio.",maps:"https://maps.google.com/?q=Claytivity+Pottery+Studio+Silver+Lake",zone:"sunset",tags:["creative"]},
+  {name:"Neutra VDL House",type:"activity",price:"$",note:"One of the finest mid-century modern homes in California, overlooking the reservoir. Saturday tours only. $15.",maps:"https://maps.google.com/?q=Neutra+VDL+House+Silver+Lake",zone:"reservoir",tags:["art"]},
+  {name:"The Echo",type:"activity",price:"$$",note:"Catch live music at one of LA's most beloved neighborhood venues.",maps:"https://maps.google.com/?q=The+Echo+Los+Angeles",zone:"sunset",tags:["music"]},
+  {name:"El Cid",type:"activity",price:"$$",note:"Spanish tavern since 1962. Flamenco dinner shows on Saturdays — candlelit and completely transporting.",maps:"https://maps.google.com/?q=El+Cid+Sunset+Los+Angeles",zone:"sunset",tags:["music","art"]},
+  {name:"Millie's Cafe",type:"dessert",price:"$",note:"Classic diner with beloved pies and a cozy, nostalgic feel.",maps:"https://maps.google.com/?q=Millies+Cafe+Silver+Lake",zone:"sunset",tags:["food"]},
+  {name:"Salt & Straw",type:"dessert",price:"$$",note:"Inventive seasonal ice cream with lines that are always worth it.",maps:"https://maps.google.com/?q=Salt+and+Straw+Los+Angeles",zone:"sunset",tags:["food"]}
+],
+"Culver City":[
+  {name:"Boba Guys",type:"café",price:"$",note:"Inside The Platform, a plant-lined outdoor mall. Customizable boba with perfectly squishy tapioca. Opens 11am.",maps:"https://maps.google.com/?q=Boba+Guys+Culver+City",zone:"platform",tags:["food"]},
+  {name:"Super Domestic Coffee",type:"café",price:"$",note:"Quirky neighborhood café with succulent wall and Polaroids of dogs. The Fox latte — butter toffee — is the order.",maps:"https://maps.google.com/?q=Super+Domestic+Coffee+Culver+City",zone:"culver",tags:["food"]},
+  {name:"Cognoscenti Coffee",type:"café",price:"$$",note:"Angular Hayden Tract café. Sustainability-focused sourcing, Proof Bakery pastries. The neighborhood's best flat white.",maps:"https://maps.google.com/?q=Cognoscenti+Coffee+Culver+City",zone:"hayden",tags:["food","art"]},
+  {name:"Destroyer",type:"café",price:"$$",note:"Stark, minimal, Michelin-recognized — a breakfast worth building a morning around. Opens 8am, closes 3pm.",maps:"https://maps.google.com/?q=Destroyer+Culver+City",zone:"hayden",tags:["food","art"]},
+  {name:"Yunomi Handroll",type:"restaurant",price:"$$",note:"At The Culver Steps. Fresh handrolls: spicy tuna, rock shrimp, yellowtail. The crispy seaweed is the star.",maps:"https://maps.google.com/?q=Yunomi+Handroll+Culver+City",zone:"culver",tags:["food"]},
+  {name:"Afuri",type:"restaurant",price:"$$",note:"Japanese ramen and izakaya at The Culver Steps. The yuzu shio ramen is a revelation. Hamachi tartare also excellent.",maps:"https://maps.google.com/?q=Afuri+Culver+City",zone:"culver",tags:["food"]},
+  {name:"Roberta's",type:"restaurant",price:"$$",note:"Wood-fired pizza and a lively room — great energy for any kind of outing.",maps:"https://maps.google.com/?q=Robertas+Culver+City",zone:"washington",tags:["food"]},
+  {name:"Hatchet Hall",type:"restaurant",price:"$$$",note:"Upscale Southern with a California twist. Cast iron cornbread is non-negotiable. Courtyard patio, candlelit.",maps:"https://maps.google.com/?q=Hatchet+Hall+Culver+City",zone:"washington",tags:["food"]},
+  {name:"Jackson Market & Deli",type:"restaurant",price:"$",note:"Hidden since 1925. Foliage-draped garden patio with koi pond. Build-your-own sandwich. No laptops — just presence.",maps:"https://maps.google.com/?q=Jackson+Market+Deli+Culver+City",zone:"jackson",tags:["food","outdoors"]},
+  {name:"The Culver Hotel Bar",type:"bar",price:"$$$",note:"Old Hollywood elegance in a historic 1924 hotel — order a classic cocktail and settle in.",maps:"https://maps.google.com/?q=Culver+Hotel+Bar",zone:"culver",tags:["food","music"]},
+  {name:"Bar & Garden",type:"bar",price:"$$",note:"Best natural wine shop in Culver City. 4.8 stars. Georgian, Eastern European, orange wines. Friday tasting flights $10.",maps:"https://maps.google.com/?q=Bar+and+Garden+Culver+City",zone:"washington",tags:["food"]},
+  {name:"The Corner Door",type:"bar",price:"$$",note:"Intimate booths, serious craft cocktails. Open until 2am Fri–Sat. The kind of bar where you forget what time it is.",maps:"https://maps.google.com/?q=The+Corner+Door+Culver+City",zone:"washington",tags:["food","music"]},
+  {name:"Baldwin Hills Scenic Overlook",type:"outdoor",price:"$",note:"Climb the stairs and earn one of the best views in all of LA — ocean, skyline, Hollywood Sign. Free.",maps:"https://maps.google.com/?q=Baldwin+Hills+Scenic+Overlook",zone:"baldwin",tags:["outdoors"]},
+  {name:"Rolling Greens",type:"outdoor",price:"$",note:"A plant nursery functioning as a botanical garden across three levels — rare tropicals, ceramics, outdoor furniture. Free.",maps:"https://maps.google.com/?q=Rolling+Greens+Culver+City",zone:"jefferson",tags:["outdoors","creative"]},
+  {name:"Color Me Mine",type:"activity",price:"$$",note:"Paint-your-own pottery near the Culver Stairs. 4.9 stars. Walk-in or reserve. Open until 10pm daily.",maps:"https://maps.google.com/?q=Color+Me+Mine+Culver+City",zone:"culver",tags:["creative"]},
+  {name:"Wende Museum",type:"activity",price:"$",note:"Free Cold War archive — Berlin Wall sections, Soviet artifacts, Russian books you can actually read. Beautiful garden.",maps:"https://maps.google.com/?q=Wende+Museum+Culver+City",zone:"culver",tags:["art"]},
+  {name:"Museum of Jurassic Technology",type:"activity",price:"$",note:"Cabinet-of-curiosities museum with labyrinthine rooms, dimly lit and wonderfully odd. $12. Tea and cookies on the top floor.",maps:"https://maps.google.com/?q=Museum+of+Jurassic+Technology",zone:"venice",tags:["art","creative"]},
+  {name:"Bitter Root Pottery",type:"activity",price:"$$",note:"Get your hands in clay — a surprisingly intimate and fun shared experience.",maps:"https://maps.google.com/?q=Bitter+Root+Pottery+Culver+City",zone:"hayden",tags:["creative"]},
+  {name:"Activate",type:"activity",price:"$$",note:"High-energy interactive gaming that works for any size group.",maps:"https://maps.google.com/?q=Activate+Culver+City",zone:"sepulveda",tags:["creative"]},
+  {name:"Honeymee",type:"dessert",price:"$",note:"Soft-serve honey milk ice cream — simple, pure, and quietly perfect.",maps:"https://maps.google.com/?q=Honeymee+Culver+City",zone:"culver",tags:["food"]},
+  {name:"Pressed Juicery Freeze",type:"dessert",price:"$",note:"Creamy soft-serve made from fruits and veggies — guilt-free and delicious.",maps:"https://maps.google.com/?q=Pressed+Juicery+Freeze+Culver+City",zone:"culver",tags:["food"]}
+],
+"Pasadena":[
+  {name:"Salted Butter Company",type:"café",price:"$",note:"A cozy bakery morning — slow down, order something buttery, and ease into the day. French onion pastry is the move.",maps:"https://maps.google.com/?q=Salted+Butter+Company+Pasadena",zone:"oldtown",tags:["food"]},
+  {name:"Odd One Out Tea",type:"café",price:"$$",note:"Award-winning Taiwanese boba from Taipei. Order the Champion Milk Tea at 50% sweetness. Opens noon.",maps:"https://maps.google.com/?q=Odd+One+Out+Tea+Pasadena",zone:"oldtown",tags:["food"]},
+  {name:"BadAsh Bakes",type:"café",price:"$",note:"Black woman-owned, TikTok-viral cinnamon rolls. Get the matcha cinnamon and banana pudding. Wed–Sat only.",maps:"https://maps.google.com/?q=BadAsh+Bakes+Pasadena",zone:"colorado",tags:["food"]},
+  {name:"Oh La La",type:"café",price:"$$",note:"French-inspired and charming — great for a first meeting with low pressure.",maps:"https://maps.google.com/?q=Oh+La+La+Pasadena",zone:"colorado",tags:["food"]},
+  {name:"Chado Tea Room",type:"café",price:"$$",note:"British-style afternoon tea with a massive loose-leaf menu. Scones, sandwiches, pastries. Unhurried by design.",maps:"https://maps.google.com/?q=Chado+Tea+Room+Pasadena",zone:"oldtown",tags:["food"]},
+  {name:"Woon",type:"restaurant",price:"$$",note:"Taiwanese comfort food in a warm, unpretentious room — everything tastes like care.",maps:"https://maps.google.com/?q=Woon+Pasadena",zone:"colorado",tags:["food"]},
+  {name:"Osawa Sushi",type:"restaurant",price:"$$",note:"4.7 stars. Sit at the sushi bar and let the chef guide you. Salmon aburi, cucumber citrus sesame. Reserve ahead.",maps:"https://maps.google.com/?q=Osawa+Sushi+Pasadena",zone:"oldtown",tags:["food"]},
+  {name:"Perle",type:"restaurant",price:"$$$",note:"Michelin Guide French. Order the escargot and Dover sole. Ask for the soufflé at the start — it takes 20 minutes.",maps:"https://maps.google.com/?q=Perle+Restaurant+Pasadena",zone:"oldtown",tags:["food"]},
+  {name:"Cafe Santorini",type:"restaurant",price:"$$$",note:"Rooftop Mediterranean dining in Old Town — especially beautiful after dark.",maps:"https://maps.google.com/?q=Cafe+Santorini+Pasadena",zone:"oldtown",tags:["food"]},
+  {name:"1886 Bar at The Raymond",type:"bar",price:"$$$",note:"Craftsman cottage, real fireplace, oil lanterns. The most romantic bar in Pasadena. Sit inside by the fire.",maps:"https://maps.google.com/?q=1886+Bar+Pasadena",zone:"fairoaks",tags:["food"]},
+  {name:"The Blind Donkey",type:"bar",price:"$$",note:"Craft beer and whiskey in a low-key neighborhood spot with real character. 4.5 stars.",maps:"https://maps.google.com/?q=The+Blind+Donkey+Pasadena",zone:"oldtown",tags:["food","music"]},
+  {name:"Ladies & Gentlemen",type:"bar",price:"$$",note:"Entrance disguised as a restroom door. Reservations required. Order the Milk & Coffee cocktail. Thu–Sun only.",maps:"https://maps.google.com/?q=Ladies+and+Gentlemen+Pasadena",zone:"colorado",tags:["food"]},
+  {name:"Rose Bowl Stadium",type:"outdoor",price:"$",note:"Walk the 3-mile loop around an LA icon — especially beautiful in the early evening light. Free.",maps:"https://maps.google.com/?q=Rose+Bowl+Stadium+Pasadena",zone:"rosebowl",tags:["outdoors"]},
+  {name:"Descanso Gardens",type:"outdoor",price:"$$",note:"Wander through oak woodland and seasonal blooms — quietly spectacular.",maps:"https://maps.google.com/?q=Descanso+Gardens",zone:"descanso",tags:["outdoors","art"]},
+  {name:"Eaton Canyon",type:"outdoor",price:"$",note:"A short hike to a waterfall that feels far more wild than it has any right to.",maps:"https://maps.google.com/?q=Eaton+Canyon+Pasadena",zone:"eaton",tags:["outdoors"]},
+  {name:"Storrier Stearns Japanese Garden",type:"outdoor",price:"$",note:"1930s hidden garden on the National Register. $12. Koi ponds, four stone bridges. Fri 4–8pm · Sun 10am–4pm only.",maps:"https://maps.google.com/?q=Storrier+Stearns+Japanese+Garden",zone:"oldtown",tags:["outdoors","art"]},
+  {name:"Plushumi",type:"activity",price:"$$",note:"2-hour plushie workshop with a perfect 5.0 rating — you each make one and leave with something you built together.",maps:"https://maps.google.com/?q=Plushumi+Pasadena",zone:"oldtown",tags:["creative"]},
+  {name:"Norton Simon Museum",type:"activity",price:"$$",note:"World-class art — Degas, Monet, Picasso, Van Gogh — in a beautiful building. Lose track of time together.",maps:"https://maps.google.com/?q=Norton+Simon+Museum",zone:"colorado",tags:["art"]},
+  {name:"Neon Retro Arcade",type:"activity",price:"$",note:"$15/hr, 50+ vintage games. No skill required — competitive banter starts immediately.",maps:"https://maps.google.com/?q=Neon+Retro+Arcade+Pasadena",zone:"oldtown",tags:["creative"]},
+  {name:"Brookside Golf Club — Driving Range",type:"activity",price:"$",note:"Next to the Rose Bowl. Buckets of balls, open sky. No skill required — the point is the conversation.",maps:"https://maps.google.com/?q=Brookside+Golf+Club+Pasadena",zone:"rosebowl",tags:["outdoors"]},
+  {name:"Vroman's Bookstore",type:"activity",price:"$",note:"LA's oldest indie bookstore — browse, recommend, discover each other's taste.",maps:"https://maps.google.com/?q=Vromans+Bookstore+Pasadena",zone:"colorado",tags:["art","creative"]},
+  {name:"Kinrose Creamery",type:"dessert",price:"$$",note:"Persian ice cream tucked in a courtyard alley. 4.9 stars. Try the saffron pistachio rose or walnut baklava.",maps:"https://maps.google.com/?q=Kinrose+Creamery+Pasadena",zone:"oldtown",tags:["food"]},
+  {name:"Saffron & Rose",type:"dessert",price:"$$",note:"Persian ice cream with rosewater and saffron — delicate and completely unforgettable.",maps:"https://maps.google.com/?q=Saffron+and+Rose+Pasadena",zone:"colorado",tags:["food"]},
+  {name:"Bulgarini Gelato",type:"dessert",price:"$$",note:"Authentic Italian gelato made with local ingredients — the best scoop in Pasadena.",maps:"https://maps.google.com/?q=Bulgarini+Gelato+Pasadena",zone:"colorado",tags:["food"]}
+]
 };
 
-// ─────────────────────────────────────────────
-// SUNSET CHECK  (Nov 1 2026)
-// ─────────────────────────────────────────────
-(function() {
-  const sunset = new Date("2026-11-01T00:00:00");
-  if (new Date() >= sunset) {
-    document.getElementById("sunset-overlay").classList.add("show");
-  }
-})();
+const walkableZones={"Silver Lake":["sunset"],"Culver City":["culver","platform"],"Pasadena":["oldtown","colorado"]};
+const travelTime={
+  "Silver Lake":{"sunset-sunset":"5 min walk","sunset-hyperion":"8 min walk","sunset-reservoir":"12 min walk · or 4 min drive","hyperion-sunset":"8 min walk","reservoir-sunset":"12 min walk · or 4 min drive","default":"5–10 min"},
+  "Culver City":{"culver-culver":"5 min walk","culver-platform":"5 min walk","platform-culver":"5 min walk","platform-platform":"3 min walk","culver-washington":"8 min walk","culver-hayden":"12 min walk · or 5 min drive","washington-culver":"8 min walk","washington-hayden":"6 min walk","hayden-culver":"12 min walk · or 5 min drive","hayden-washington":"6 min walk","culver-baldwin":"8 min drive","culver-sepulveda":"10 min drive","culver-jefferson":"6 min drive","culver-jackson":"5 min drive","culver-venice":"5 min walk","venice-culver":"5 min walk","washington-sepulveda":"8 min drive","default":"5–15 min · check directions"},
+  "Pasadena":{"oldtown-oldtown":"5 min walk","oldtown-colorado":"6 min walk","colorado-oldtown":"6 min walk","colorado-colorado":"5 min walk","oldtown-delmar":"10 min walk","colorado-delmar":"8 min walk","oldtown-fairoaks":"12 min walk","colorado-fairoaks":"10 min walk","oldtown-rosebowl":"10 min drive","colorado-rosebowl":"10 min drive","oldtown-descanso":"12 min drive","oldtown-eaton":"15 min drive","default":"5–15 min · check directions"}
+};
+function getTravelTime(from,to,n){const m=travelTime[n]||{};return m[`${from}-${to}`]||m.default||"check directions";}
+const arcs={exploring:[["café","outdoor"],["activity"],["bar","restaurant","dessert"]],matching:[["café","outdoor"],["activity"],["bar","restaurant"]]};
+const titles={exploring:{"Silver Lake":["Silver Lake on Your Own Terms","A Day Just for You","Your Afternoon, Unscheduled"],"Culver City":["A Solo Culver City Afternoon","Time Well Spent in Culver","Your Own Kind of Day"],"Pasadena":["Pasadena, At Your Own Pace","Quiet Hours in Old Town","A Solo Day in Pasadena"]},matching:{"Silver Lake":["Something Easy in Silver Lake","A Silver Lake First","Low Pressure, High Vibe"],"Culver City":["A Good Start in Culver City","Easy Does It in Culver","Your Culver City First"],"Pasadena":["A Pasadena First Impression","Something Charming in Old Town","New Connection, Great City"]}};
+const closings={exploring:["The city was yours today.","You needed this.","Time well spent with your favorite person — yourself.","Some days are just for you."],matching:["A good start.","Something worth continuing.","The first of many, maybe.","Easy enough to feel like it was always going to work."]};
+const defaultStartTimes={exploring:["10:00 AM","11:00 AM","1:00 PM","2:00 PM"],matching:["2:00 PM","4:00 PM","5:00 PM","6:00 PM"]};
+const timeOverrides={morning:["9:00 AM","9:30 AM","10:00 AM"],afternoon:["12:00 PM","1:00 PM","2:00 PM","3:00 PM"],evening:["5:00 PM","6:00 PM","7:00 PM"]};
+const gaps={"café":60,"restaurant":90,"outdoor":75,"activity":90,"bar":75,"pop-up":60,"dessert":45};
+const typeBg={café:'rgba(201,168,76,.08)',restaurant:'rgba(201,106,58,.08)',bar:'rgba(100,80,140,.12)',outdoor:'rgba(80,140,100,.1)',activity:'rgba(138,158,130,.1)',"pop-up":'rgba(200,120,100,.08)',dessert:'rgba(200,100,140,.08)'};
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function addMinutes(t,m){const[tp,pd]=t.split(' ');const[h,mn]=tp.split(':').map(Number);let tot=h*60+mn+(pd==='PM'&&h!==12?720:0)+(pd==='AM'&&h===12?-720:0)+m;let nh=Math.floor(tot/60)%24,nm=tot%60;const np=nh>=12?'PM':'AM';if(nh>12)nh-=12;if(nh===0)nh=12;return `${nh}:${nm.toString().padStart(2,'0')} ${np}`;}
+function pickStop(pool,types,used,interests,onFoot,n){const wz=walkableZones[n]||[];for(const type of types){let f=pool.filter(v=>v.type===type&&!used.has(v.name)&&(interests.length===0||interests.some(i=>v.tags.includes(i))));if(onFoot&&used.size>0){const fw=f.filter(v=>wz.includes(v.zone));if(fw.length)f=fw;}if(f.length){const p=rand(f);used.add(p.name);return p;}}for(const type of types){const f=pool.filter(v=>v.type===type&&!used.has(v.name));if(f.length){const p=rand(f);used.add(p.name);return p;}}return null;}
+function isWalkable(stops,n){const z=walkableZones[n]||[];return stops.every(s=>z.includes(s.zone));}
+function buildCalendarUrl(stops,startTime){const today=new Date();const[t,pd]=startTime.split(' ');const[h,m]=t.split(':').map(Number);let hr=h+(pd==='PM'&&h!==12?12:0)+(pd==='AM'&&h===12?-12:0);const start=new Date(today.getFullYear(),today.getMonth(),today.getDate(),hr,m);const end=new Date(start.getTime()+3*60*60*1000);const fmt=d=>d.toISOString().replace(/-|:|\.\d{3}/g,'').slice(0,15)+'Z';const details=stops.map(s=>`${s.name} (${s.price})`).join('\n');return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=SoMe+Adventure+in+${encodeURIComponent(state.neighborhood)}&dates=${fmt(start)}/${fmt(end)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(stops[0].name+', '+state.neighborhood+', CA')}`;}
+function generate(){const onFoot=state.transport==='foot';const pool=venues[state.neighborhood];const arc=arcs[state.dateType];const used=new Set();const stops=arc.map(types=>pickStop(pool,types,used,state.interests,onFoot,state.neighborhood)).filter(Boolean);if(stops.length<2)return;currentItinerary=stops;['step1','step2','step4','step5'].forEach(id=>{document.getElementById(id).style.display='none';});document.getElementById('generateBtn').style.display='none';const label=state.dateType==='exploring'?'Just Exploring':'Open to Meeting Someone';document.getElementById('resultBadge').textContent=[label,state.neighborhood,onFoot?'On foot':'By car'].join(' · ');document.getElementById('resultTitle').textContent=rand(titles[state.dateType][state.neighborhood]);const walkEl=document.getElementById('walkBadge');if(isWalkable(stops,state.neighborhood)){walkEl.innerHTML=`<span class="walk-badge walkable"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0M6 20l3-7 2 3 2-4 3 8M9 13l-2 2"/></svg> Walkable itinerary</span>`;}else{walkEl.innerHTML=`<span class="walk-badge mixed"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v4h-7V8zM5.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM18.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg> ${onFoot?'Mix of short walks':'Mix of walking &amp; driving'}</span>`;}const body=document.getElementById('resultBody');body.innerHTML='';const times=state.timeOfDay?timeOverrides[state.timeOfDay]:defaultStartTimes[state.dateType];let currentTime=rand(times);const firstTime=currentTime;stops.forEach((stop,i)=>{const time=currentTime;currentTime=addMinutes(currentTime,gaps[stop.type]||75);const card=document.createElement('div');card.className='stop-card';card.style.background=typeBg[stop.type]||'rgba(245,240,232,.02)';card.innerHTML=`<div class="stop-top"><div class="stop-left"><div class="stop-time">${time}</div><div class="stop-name">${stop.name}</div></div><div class="stop-type-badge">${stop.type}</div></div><div class="stop-note">${stop.note}</div><div class="stop-meta"><span class="stop-price">${stop.price}</span><a class="stop-directions" href="${stop.maps}" target="_blank"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>Directions</a></div>`;body.appendChild(card);if(i<stops.length-1){const next=stops[i+1];const travel=getTravelTime(stop.zone,next.zone,state.neighborhood);const conn=document.createElement('div');conn.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 4px;';conn.innerHTML=`<div style="width:1px;height:24px;background:rgba(245,240,232,.1);margin-left:6px;flex-shrink:0;"></div><span style="font-size:.65rem;color:var(--muted);letter-spacing:.06em;">&#8595; ${travel}</span>`;body.appendChild(conn);}});document.getElementById('resultClosing').textContent=rand(closings[state.dateType]);const b=bridge[state.dateType];document.getElementById('momentHeadline').textContent=b.headline;document.getElementById('momentSub').textContent=b.sub;document.getElementById('bridgeCTA').textContent=b.cta;document.getElementById('calendarLink').href=buildCalendarUrl(stops,firstTime);document.getElementById('momentConfirm').style.display='block';document.getElementById('resultCard').classList.add('visible');}
+function shareItinerary(){const stops=currentItinerary;if(!stops.length)return;const text=`My SoMe adventure in ${state.neighborhood}:\n\n`+stops.map(s=>`📍 ${s.name}`).join('\n')+`\n\nPlan yours → socialwithsome.github.io/explore`;if(navigator.share){navigator.share({title:'My SoMe Adventure',text});}else if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>showToast('Itinerary copied!'));}else{showToast('Copy from your browser');}}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function selectTile(el,key){el.parentElement.querySelectorAll('.tile').forEach(t=>t.classList.remove('selected'));el.classList.add('selected');state[key]=el.dataset.value;checkReady();}
 
-// ─────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────
-let activeFilter = "all";
-// Track active format tab per city: { pasadena: "walkable", silverlake: "walkable", culvercity: "walkable" }
-const activeTabs = { pasadena: "walkable", silverlake: "walkable", culvercity: "walkable" };
-
-// ─────────────────────────────────────────────
-// RENDER
-// ─────────────────────────────────────────────
-const FORMAT_KEYS = ["walkable", "driveable", "mixed"];
-const FORMAT_LABELS = { walkable: "Walkable", driveable: "Full Day Drive", mixed: "Mixed" };
-const CITY_KEYS = ["pasadena", "silverlake", "culvercity"];
-
-function typeColor(type) {
-  const t = type.toLowerCase();
-  if (t.includes("activity") || t.includes("workshop") || t.includes("hike")) return "var(--sage)";
-  if (t.includes("coffee") || t.includes("boba") || t.includes("tea")) return "var(--terracotta)";
-  if (t.includes("dinner") || t.includes("lunch") || t.includes("brunch") || t.includes("sushi") || t.includes("ramen") || t.includes("handroll")) return "#8b5e3c";
-  if (t.includes("wine") || t.includes("speakeasy") || t.includes("nightcap") || t.includes("bar") || t.includes("show")) return "var(--midnight)";
-  return "var(--terracotta)";
-}
-
-function renderStop(stop, idx) {
-  return `
-    <li class="stop-item">
-      <div class="stop-num">${idx + 1}</div>
-      <div class="stop-body">
-        <div class="stop-top">
-          <span class="stop-name">${stop.name}</span>
-          <span class="stop-type" style="color:${typeColor(stop.type)}">${stop.type}</span>
-        </div>
-        <div class="stop-address">${stop.address}</div>
-        <div class="stop-note">${stop.note}</div>
-        <div class="stop-hours">⏰ ${stop.hours}</div>
-        <a class="stop-maps-link" href="${stop.mapsUrl}" target="_blank" rel="noopener">Open in Maps →</a>
-      </div>
-    </li>`;
-}
-
-function renderCard(cityKey, formatKey, option) {
-  const data = ITINERARIES[cityKey][formatKey][option];
-  const badge = option === "a" ? "Option A" : "Option B";
-  const stops = data.stops.map((s, i) => renderStop(s, i)).join("");
-  return `
-    <div class="itinerary-card">
-      <div class="card-header">
-        <div class="card-option-badge">${badge}</div>
-        <div class="card-title">${data.title}</div>
-        <div class="card-tag">${data.tag}</div>
-      </div>
-      <ul class="stops-list">${stops}</ul>
-    </div>`;
-}
-
-function renderFormat(cityKey, formatKey) {
-  return `
-    <div class="itinerary-pair">
-      ${renderCard(cityKey, formatKey, "a")}
-      ${renderCard(cityKey, formatKey, "b")}
-    </div>`;
-}
-
-function renderCity(cityKey) {
-  const city = ITINERARIES[cityKey];
-  const tab = activeTabs[cityKey];
-
-  const tabsHtml = FORMAT_KEYS.map(fk => `
-    <button
-      class="format-tab ${tab === fk ? "active" : ""}"
-      data-city="${cityKey}"
-      data-format="${fk}"
-    >${FORMAT_LABELS[fk]}</button>
-  `).join("");
-
-  // city visibility
-  const hideCity =
-    (activeFilter !== "all") &&
-    (activeFilter !== cityKey) &&
-    (activeFilter !== tab);
-
-  // format visibility: hide if filter is a city but not this one, or filter is a format but not this one
-  let showCity = true;
-  if (activeFilter === "pasadena" && cityKey !== "pasadena") showCity = false;
-  if (activeFilter === "silverlake" && cityKey !== "silverlake") showCity = false;
-  if (activeFilter === "culvercity" && cityKey !== "culvercity") showCity = false;
-  if (activeFilter === "walkable" && cityKey === cityKey) activeTabs[cityKey] = "walkable";
-  if (activeFilter === "driveable") activeTabs[cityKey] = "driveable";
-  if (activeFilter === "mixed") activeTabs[cityKey] = "mixed";
-
-  const resolvedTab = activeTabs[cityKey];
-
-  return `
-    <section class="city-section" data-city="${cityKey}" ${showCity ? "" : 'hidden'}>
-      <h2 class="city-heading">${city.label}</h2>
-      <p class="city-meta">6 itineraries · Walkable, Full Day Drive, Mixed · 2 options each</p>
-      <div class="format-tabs">${FORMAT_KEYS.map(fk => `
-        <button
-          class="format-tab ${resolvedTab === fk ? "active" : ""}"
-          data-city="${cityKey}"
-          data-format="${fk}"
-        >${FORMAT_LABELS[fk]}</button>
-      `).join("")}</div>
-      <div class="city-formats">
-        ${FORMAT_KEYS.map(fk => `
-          <div data-format-panel="${cityKey}-${fk}" ${resolvedTab === fk ? "" : 'style="display:none"'}>
-            ${renderFormat(cityKey, fk)}
-          </div>
-        `).join("")}
-      </div>
-    </section>`;
-}
-
-function render() {
-  // Update format tabs based on filter
-  if (activeFilter === "walkable") CITY_KEYS.forEach(c => activeTabs[c] = "walkable");
-  if (activeFilter === "driveable") CITY_KEYS.forEach(c => activeTabs[c] = "driveable");
-  if (activeFilter === "mixed") CITY_KEYS.forEach(c => activeTabs[c] = "mixed");
-
-  const html = CITY_KEYS.map(renderCity).join("");
-  document.getElementById("main-content").innerHTML = html;
-
-  // Bind format tab clicks
-  document.querySelectorAll(".format-tab").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const city = btn.dataset.city;
-      const format = btn.dataset.format;
-      activeTabs[city] = format;
-
-      // Update tab styles
-      document.querySelectorAll(`.format-tab[data-city="${city}"]`).forEach(b => {
-        b.classList.toggle("active", b.dataset.format === format);
-      });
-
-      // Show/hide panels
-      document.querySelectorAll(`[data-format-panel^="${city}-"]`).forEach(panel => {
-        const panelFormat = panel.dataset.formatPanel.replace(`${city}-`, "");
-        panel.style.display = panelFormat === format ? "" : "none";
-      });
-    });
-  });
-}
-
-// ─────────────────────────────────────────────
-// FILTER BUTTONS
-// ─────────────────────────────────────────────
-document.querySelectorAll(".filter-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    activeFilter = btn.dataset.filter;
-    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    render();
-    document.getElementById("main-content").scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-});
-
-// ─────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────
-render();
+function toggleTag(el,group){el.classList.toggle('selected');const val=el.dataset.value;const arr=group==='interest'?state.interests:state.vibes;const idx=arr.indexOf(val);if(idx>-1)arr.splice(idx,1);else arr.push(val);}
+function checkReady(){document.getElementById('generateBtn').disabled=!(state.neighborhood&&state.transport);}
+const cityMap={silverlake:'Silver Lake',culvercity:'Culver City',pasadena:'Pasadena'};
+const cityEmoji={'Silver Lake':'🌿','Culver City':'🎬','Pasadena':'🌸'};
+function initCityParam(){const params=new URLSearchParams(window.location.search);const raw=(params.get('city')||'').toLowerCase().replace(/\s/g,'');const city=cityMap[raw];if(!city)return;state.neighborhood=city;document.getElementById('step2').style.display='none';document.getElementById('cityBannerName').textContent=cityEmoji[city]+'  '+city;document.getElementById('cityBanner').style.display='block';checkReady();}
+function changeCity(){state.neighborhood=null;document.getElementById('step2').style.display='';document.getElementById('cityBanner').style.display='none';document.querySelectorAll('#step2 .tile').forEach(t=>t.classList.remove('selected'));checkReady();}
+function checkSunset(){if(new Date()>=new Date('2026-11-01T00:00:00')){document.querySelector('.wordmark').style.display='none';document.querySelector('.tagline').style.display='none';['step1','step2','step4','step5'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});document.querySelectorAll('.divider').forEach(d=>d.style.display='none');document.getElementById('generateBtn').style.display='none';document.getElementById('cityBanner').style.display='none';document.querySelector('.site-footer').style.display='none';document.getElementById('sunsetScreen').style.display='block';return true;}return false;}
+function resetFlow(){document.getElementById('resultCard').classList.remove('visible');document.getElementById('momentConfirm').style.display='block';['step1','step2','step4','step5'].forEach(id=>{document.getElementById(id).style.display='';});document.getElementById('generateBtn').style.display='';document.querySelectorAll('.tile').forEach(t=>t.classList.remove('selected'));document.querySelectorAll('.tag').forEach(t=>t.classList.remove('selected'));state.dateType='exploring';state.neighborhood=null;state.transport=null;state.timeOfDay=null;state.interests=[];state.vibes=[];currentItinerary=[];initCityParam();checkReady();}
+window.addEventListener('DOMContentLoaded',()=>{if(!checkSunset())initCityParam();});
 </script>
-
 </body>
 </html>
